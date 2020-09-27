@@ -3,10 +3,12 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+src/module/
 
 # Editor directories and files
 .idea
 .vscode
+.gitmodules
 *.suo
 *.ntvs*
 *.njsproj
