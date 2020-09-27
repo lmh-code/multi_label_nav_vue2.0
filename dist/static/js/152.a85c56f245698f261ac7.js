@@ -1,0 +1,2 @@
+webpackJsonp([152],{v7Gf:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r={render:function(){var e=this.$createElement;return(this._self._c||e)("div",{staticClass:"add-form-wraper"},[this._v("\n  编辑顺丰商品\n")])},staticRenderFns:[]},s=n("VU/8")({data:function(){return{}}},r,!1,null,null,null);t.default=s.exports}});
+//# sourceMappingURL=152.a85c56f245698f261ac7.js.map
