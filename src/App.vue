@@ -21,7 +21,7 @@ export default {
 </script>
 
 <style>
-  @import "../static/style/common.css";
+  @import "./assets/style/common.css";
   #app {
     font-family: 'microsoft yahei', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;

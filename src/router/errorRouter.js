@@ -11,7 +11,7 @@ const errorRouter = [
         {name: '未找到页面', path: '/error'}
       ]
     },
-    component: () => import('@/components/Common/ErrorPage/index')
+    component: () => import('@/components/ErrorPage')
   },
   {
     path: '/noopt',
@@ -25,7 +25,7 @@ const errorRouter = [
         {name: '暂无访问权限', path: ''}
       ]
     },
-    component: () => import('@/components/Common/NoOpt/index')
+    component: () => import('@/components/NoOpt')
   }
 ]
 

@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Storage from '@/utils/localStorage'
 import config from '@/utils/config'
 import * as utils from '@/utils/utils'
-import Layout from '@/components/Index'
+import Layout from '@/components/Layout'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 
@@ -92,6 +92,7 @@ const router = new Router({
  * @return: 
  */
 router.beforeEach((to, from, next) => {
+  console.log("to:", to);
   if(to.meta.cantCheck) {
     next()
   }else {
@@ -116,7 +117,8 @@ router.afterEach((to, from) => {
 const checkRouter = (toPath) => {
   let allMenusList = Storage.get("allMenus") && Storage.get("allMenus").length > 0 ? Storage.get("allMenus") : []
   let cPath = `/${toPath.split('/')[1]}`
-  return utils.isKeyInArray(cPath, allMenusList) || utils.isKeyInArray(toPath, allMenusList)
+  return utils.isKeyInArray(cPath, allMenusList) || utils.isKeyInArray(toPath, allMenusList) || utils.isKeyInArray(cPath.substr(1), allMenusList) || utils.isKeyInArray(toPath.substr(1), allMenusList)
+
 }
 
 export default router

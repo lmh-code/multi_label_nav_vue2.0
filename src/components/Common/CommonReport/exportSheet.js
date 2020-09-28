@@ -133,7 +133,7 @@ function createFile (json, fileName, extraList) {
   var href = URL.createObjectURL(tmpDown) // 创建对象超链接
   var a = document.createElement('a')
   a.href = href // 绑定a标签
-  a.download = fileName || `导出数据${util.formatDate(new Date())}.xlsx`
+  a.download = fileName || `导出数据${util.dateFormat('yyyy-MM-dd HH:mm:ss', new Date().getTime())}.xlsx`
   document.body.appendChild(a)
   a.click() // 模拟点击实现下载
   document.body.removeChild(a)

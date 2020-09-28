@@ -1,12 +1,12 @@
 <style scoped>
-  @import '../../assets/style/tip.css';
+@import '../../assets/style/tip.css';
 </style>
 
 <template>
   <div class="tip-wrap">
     <img :src="imgUrl" alt="">
     <div class="tip-text">
-      欢迎使用本来鲜-{{sysName}}
+      您没有当前页面的访问权限
     </div>
   </div>
 </template>
@@ -16,8 +16,7 @@ import config from '@/utils/config';
 export default {
   data() {
     return {
-      imgUrl: `${config.baseRouter}/static/welcome.png`,
-      sysName: config.sysName
+      imgUrl: `${config.baseRouter}/static/noopt.png`
     }
   }
 }

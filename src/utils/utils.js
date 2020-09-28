@@ -1,4 +1,6 @@
-import store from '../store'
+import store from '../store';
+import config from './config';
+import Storage from './localStorage';
 /**
  * js 工具类
  */
@@ -31,6 +33,13 @@ export function dateFormat (fmt, _timestamp) {
     };
   };
   return fmt;
+}
+export function timestampToTimeNoHMS(timestamp) {
+  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+  var Y = date.getFullYear() + '-';
+  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+  var D = date.getDate() < 10 ? ('0' + date.getDate()) : date.getDate();
+  return Y + M + D;
 }
 
 /**
@@ -135,43 +144,6 @@ export function toUpperFirstLetter (obj) {
 }
 
 /**
- * formatDate 格式化日期 yyyy-MM-dd ios默认是utc时间比gmt少8个小时  2017-11-30新增 支持解析到秒
- * @param str {String}
- * @param seconds
- * @returns {string}
- */
-export function formatDate (str, seconds) {
-  if (!str) {
-    return ''
-  }
-  function parse (n) {
-    return n < 10 ? ('0' + n) : n
-  }
-  let dt = new Date(str)
-  let y = dt.getFullYear()
-  let m = dt.getMonth() + 1
-  let d = dt.getDate()
-  if (!seconds) {
-    return [y, parse(m), parse(d)].join('-')
-  } else {
-    let h = dt.getHours()
-    let M = dt.getMinutes()
-    let s = dt.getSeconds()
-    return [y, parse(m), parse(d)].join('-') + ' ' + [parse(h), parse(M), parse(s)].join(':')
-  }
-}
-
-/**
- * toPrice 金钱保留两位小数
- * @param num
- * @returns {string}
- */
-export function toPrice (num) {
-  return '￥' + parseFloat(num).toFixed(2)
-}
-
-
-/**
  * isWeChat 是否是微信浏览器打开
  * @returns {boolean}
  */
@@ -185,77 +157,6 @@ export function isWeChat () {
  */
 export function isMobile () {
   return !!navigator.userAgent.match(/(iPhone|iPod|Android|iOS|iPad|Mobile)/i)
-}
-
-
-/**
- * [timestampToTime 将时间戳转换为标准时间]
- * @param    {[type]}                 timestamp [description]
- * @return   {[type]}                           [description]
- */
-export function timestampToTime(timestamp) {
-  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  var Y = date.getFullYear() + '-';
-  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-  var D = date.getDate() < 10 ? ('0' + date.getDate() + ' ') : date.getDate() + ' ';
-  var h = date.getHours() < 10 ? ('0' + date.getHours() + ':') : date.getHours() + ':';
-  var m = date.getMinutes() < 10 ? ('0' + date.getMinutes() + ':') : date.getMinutes() + ':';
-  var s = date.getSeconds() < 10 ? ('0' + date.getSeconds()) : date.getSeconds();
-  return Y + M + D + h + m + s;
-}
-
-/**
- * [timestampToTime 将时间戳转换为标准时间]
- * @param    {[type]}                 timestamp [description]
- * @return   {[type]}                           [description]
- */
-export function timestampToTimeYMDHM(timestamp) {
-  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  var Y = date.getFullYear() + '-';
-  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-  var D = date.getDate() < 10 ? ('0' + date.getDate() + ' ') : date.getDate() + ' ';
-  var h = date.getHours() < 10 ? ('0' + date.getHours() + ':') : date.getHours() + ':';
-  var m = date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes();
-  return Y + M + D + h + m;
-}
-
-/**
- * [timestampToTimeNoHMS 时间戳转标准时间没有时分秒]
- * @param  {[type]} timestamp [description]
- * @return {[type]}           [description]
- */
-export function timestampToTimeNoHMS(timestamp) {
-  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  var Y = date.getFullYear() + '-';
-  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-  var D = date.getDate() < 10 ? ('0' + date.getDate()) : date.getDate();
-  return Y + M + D;
-}
-
-/**
- * [timestampToTime 将时间戳转换为标准时间]
- * @param    {[type]}                 timestamp [description]
- * @return   {[type]}                           [description]
- */
-export function timestampToTimeHM(timestamp) {
-  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  var h = date.getHours() < 10 ? ('0' + date.getHours() + ':') : date.getHours() + ':';
-  var m = date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes();
-  return h + m;
-}
-
-/**
- * [timestampToTime 将时间戳转换为标准时间]
- * @param    {[type]}                 timestamp [description]
- * @return   {[type]}                           [description]
- */
-export function timestampToTimeMDHM(timestamp) {
-  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-  var D = date.getDate() < 10 ? ('0' + date.getDate() + ' ') : date.getDate() + ' ';
-  var h = date.getHours() < 10 ? ('0' + date.getHours() + ':') : date.getHours() + ':';
-  var m = date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes();
-  return M + D + h + m;
 }
 
 /**
@@ -285,6 +186,7 @@ export function showLoading() {
   }
   store.dispatch('common/showLoading', param)
 }
+
 /**
  * [clearLoading 清除全局loading]
  * @param  {[type]} _val [description]
@@ -296,6 +198,16 @@ export function clearLoading() {
     showLoading: false
   }
   store.dispatch('common/showLoading', param)
+}
+
+/**
+ * @description: 退出登录
+ */
+export function loginOut(path) {
+  Storage.remove('loginInfo')
+  sessionStorage.clear()
+  path = path ? `${config.baseRouter}${path}` : `${config.baseRouter}/login`
+  window.location.replace(path)
 }
 
 /**
@@ -390,7 +302,6 @@ export function changeStrToMinutes(_str) {
     let seconds = parseInt(minutesArr[0]) * 60 * 60 + parseInt(minutesArr[1]) * 60
     return seconds
   }
-  return newTmp
 }
 
 /**
@@ -509,4 +420,20 @@ export function indexToColName(columnNumber) {
     dividend = parseInt((dividend - modulo) / 26);
   } 
   return columnName;
+}
+
+/**
+ * @description: 解决精度丢失问题
+ * @param num {number} 要格式化的数字
+ * @return pre {number} 格式化的精度
+ */
+export function fixedNum(num, pre = 2) {
+  if (isNaN(parseFloat(num))) return 'error'
+  if (num.toString().indexOf('.') === -1) return num
+  let decimal = num.toString().split('.')[1]
+  if (decimal.length < pre) {
+    return num
+  } else {
+    return (Math.round(num * Math.pow(10, pre)) / Math.pow(10, pre)).toFixed(pre)
+  }
 }

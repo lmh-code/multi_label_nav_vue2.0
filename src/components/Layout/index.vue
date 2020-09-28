@@ -1,99 +1,81 @@
-<style>
-  .index-wraper {
+<style scoped>
+  .layout-wrap {
     height: 100%;
   }
-
-  .w220 {
-    width: 220px;
-  }
-  .w64 {
-    width: 64px;
-  }
-  .my-menu {
+  .layout-wrap .aside-wrap {
     height: 100%;
-    overflow-y: hidden;
-    overflow-x: hidden;
+    background-color: #001529;
+  }
+  .layout-wrap .el-main-container {
+    padding: 0 20px 20px; 
+    height: 100%; 
     position: relative;
-  }
-
-  /*修改滚动条样式*/
-  .my-menu .el-scrollbar__wrap {
-    overflow-x: hidden;
-  }
-  .my-menu .el-scrollbar__view {
-    height: 100%;
   }
 </style>
 
 <template>
-  <div class="index-wraper" @click="isDoing">
-    <el-container style="height: 100%;">
-      <!-- 左侧菜单 -->
-      <el-aside :width="isCollapse ? '64px' : '220px'" style="height: 100%;">
-        <div class="my-menu" :class="isCollapse?'w64':'w220'">
-          <el-scrollbar style="height: 100%;overflow-x: hidden;">
-            <menus ref="myMenus"></menus>
-          </el-scrollbar>
-        </div>
-      </el-aside>
-      <el-container v-loading="getIsShowLoading">
-        <!-- 顶部 -->
-        <el-header style="padding: 0; height: 50px;">
-          <header-wraper @closeMenu="closeMenu" @showMenu="showMenu" @cityChange="cityChange" @changePass="changePass" ref="headerWraper"></header-wraper>
-        </el-header>
-        <!-- 主要内容 -->
-        <el-main style="padding: 0 20px 20px; height: 100%; position: relative;">
-          <breadcrumb></breadcrumb>
-          <router-view :key="activeDate"/>
-        </el-main>
-      </el-container>
+  <el-container class="layout-wrap" @click.native="isDoing">
+    <!-- 左侧菜单 -->
+    <el-aside :width="isCollapse ? '64px' : '220px'" class="aside-wrap">
+      <slidebar ref="slidebar"/>
+    </el-aside>
+    <el-container>
+      <!-- 顶部 -->
+      <el-header style="padding: 0; height: 46px;">
+        <header-wraper @changePass="changePass" ref="headerWraper"></header-wraper>
+      </el-header>
+      <!-- 主要内容 -->
+      <el-main class="el-main-container" v-loading="getIsShowLoading">
+        <breadcrumb></breadcrumb>
+        <keep-alive>
+          <router-view v-if="$route.meta.keepAlive"></router-view>
+        </keep-alive>
+        <router-view v-if="!$route.meta.keepAlive"></router-view>
+      </el-main>
     </el-container>
 
     <!-- 修改密码 -->
     <change-pass ref="changePass"></change-pass>
-  </div>
+  </el-container>
 </template>
 
 
 <script>
-import {mapGetters} from "vuex"
 import axios from 'axios'
+import {mapGetters} from 'vuex'
 import Storage from '@/utils/localStorage'
-import Header from "@/components/Common/Header"
-import Menus from "@/components/Common/Menus"
-import Breadcrumb from "@/components/Common/Breadcrumb"
+import {loginOut} from '@/utils/utils'
 import ChangePass from "@/components/Common/ChangePass"
+import Header from "./components/Header"
+import Slidebar from "./components/Slidebar"
+import Breadcrumb from "./components/Breadcrumb"
 import commonUrl from '@/api/Common.js'
 export default {
   name: 'App',
   data() {
     return {
       loading: false,
-      activeDate: new Date().getTime(),
-      isCollapse: false,
+      collapse: false, 
       lastTime: null,
       currentTime: null,
-      timeout: 12 * 60 * 60 * 1000,
-      routePath: 'no'
+      timeout: 12 * 60 * 60 * 1000
     }
   },
   created() {
     // 记录一次时间
     this.lastTime = new Date().getTime()
-
     // 检测用户是否处于登录状态
-    let routePath = this.$route.path
-    if(routePath != "/login" && routePath != "/forget_password" && routePath != "/sacn_code_login" && routePath != "/phone_login") {
-      // 检查登录情况
-      this.checkLogin()
-      // 刷新浏览器就刷新token
+    if(this.checkLogin()) {
+      // 刷新token
       this.refreshToken()
+    }else {
+      loginOut()
     }
   },
   mounted() {
     let isFirstLogin = Storage.get('loginInfo') ? Storage.get('loginInfo').isFirstLogin : false
     if(isFirstLogin) {
-      this.$refs.changePass.setDefault()
+      this.changePass()
     }
   },
   computed: {
@@ -101,51 +83,25 @@ export default {
       currentDate: 'common/GET_CURRENT_DATE'
     }),
     getIsShowLoading() {
-      let loading = this.$store.state.common.loading
-      return loading
-    }
-  },
-  watch: {
-    currentDate(newVal) {
-      this.activeDate = newVal
+      return this.$store.state.common.loading
+    },
+    isCollapse() {
+      return this.$store.state.common.collapse
     }
   },
   components: {
     "header-wraper": Header,
-    "menus": Menus,
     "breadcrumb": Breadcrumb,
-    "change-pass": ChangePass
+    "change-pass": ChangePass,
+    "slidebar": Slidebar
   },
   methods: {
-    /**
-     * 关闭菜单
-     */
-    closeMenu () {
-      this.isCollapse = true
-      this.$refs.myMenus.closeMenu()
-    },
-    /**
-     * 展示菜单
-     */
-    showMenu () {
-      this.isCollapse = false
-      this.$refs.myMenus.showMenu()
-    },
-    /**
-     * [clickCloseMenu 点击关闭菜单]
-     * @return {[type]} [description]
-     */
-    clickCloseMenu () {
-      this.isCollapse = !this.isCollapse
-      this.$refs.headerWraper.setIsShow(this.isCollapse)
-    },
     /**
      * 判断用户是否还在操作系统
      */
     isDoing() {
       // 调用隐藏切换平台下拉框的方法
-      if(this.$refs.myMenus) this.$refs.myMenus.hidePlaSlowDown()
-
+      if(this.$refs.slidebar) this.$refs.slidebar.hidePlaSlowDown()
       this.currentTime = new Date().getTime()
       if(this.currentTime - this.lastTime > this.timeout) {
         // 长时间未操作
@@ -156,20 +112,13 @@ export default {
             type: 'warning'
           })
           // 调用退出的方法
-          this.$refs.headerWraper.loginOut()
+          loginOut()
         }else {
           this.lastTime = new Date().getTime()
         }
       }else {
         this.lastTime = new Date().getTime()
       }
-    },
-    /**
-     * [cityChange 城市发生变化]
-     * @return {[type]} [description]
-     */
-    cityChange() {
-      this.activeDate = new Date().getTime()
     },
     /**
      * [changePass 调出修改密码弹窗]
@@ -180,17 +129,11 @@ export default {
     },
     /**
      * [checkLogin 检查是否有登录信息]
-     * @return {[type]} [description]
+     * @return {Boolean} [true 已登录 false 未登录]
      */
     checkLogin() {
-      if(!Storage.get('loginInfo')) {
-        this.$router.push('/login?status=401')
-      }
+      return Storage.get('loginInfo') && this.$route.path !== "/login" ? true : false
     },
-    /**
-     * [refreshToken 刷新token ]
-     * @return {[type]} [description]
-     */
     refreshToken() {
       let loginInfo = Storage.get('loginInfo')
       if(!loginInfo) {
@@ -238,7 +181,6 @@ export default {
         })
       }).catch(({response}) => {})
     }
-
   }
 }
 </script>

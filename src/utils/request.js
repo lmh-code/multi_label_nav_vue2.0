@@ -1,5 +1,4 @@
 import ajax from './ajax'
-import * as util from './utils'
 /**
  * [processParams 格式化参数]
  * @param  {[type]} paramObj [description]
@@ -15,9 +14,6 @@ function processParams (paramObj) {
       let item = paramObj[key]
       if (key.indexOf('_options') > -1) {
         continue
-      }
-      if (item instanceof Date) {
-        item = util.formatDate(item)
       }
       if (typeof item !== 'undefined' && typeof item !== 'function' && item !== null && item !== 'null' && item !== undefined && item !== 'undefined' && item !== '') {
         params[key] = item

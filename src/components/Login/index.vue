@@ -1,9 +1,10 @@
-<style>
-  @import "../../../static/style/login.css";
+<style scoped>
+  @import "../../assets/style/login.css";
 </style>
 
 <template>
   <div class="login-wraper">
+    <img :src="loginBgUrl" alt="" width="100%" height="100%">
     <!--登陆框-->
     <div class="login-form-box">
       <div class="form-title">本来鲜-{{sysName}}</div>
@@ -45,7 +46,7 @@
     </div>
     <!--logo框-->
     <div class="logo-wrap">
-      <img src="/shop/static/logo.png" alt="">
+      <img :src="logoUrl" alt="">
     </div>
     <!--底部-->
     <div class="footer-wraper">
@@ -63,6 +64,8 @@ import Storage from '@/utils/localStorage'
 export default{
   data() {
     return {
+      loginBgUrl: `${config.baseRouter}/static/login_bg.jpg`,
+      logoUrl: `${config.baseRouter}/static/logo.png`,
       sysName: config.sysName,
       isDisabled: false,
       uuidVal: '', // 获取验证码和登录必带参数

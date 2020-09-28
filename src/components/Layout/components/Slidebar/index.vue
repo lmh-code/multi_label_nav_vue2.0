@@ -21,11 +21,9 @@
   .logo {
     width: 162px;
     height: 50px;
-    background-image: url("/shop/static/h_logo.png");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: auto 50%;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .sys-switch-wrap {
@@ -84,13 +82,17 @@
     color: rgb(64, 158, 255);
   }
 
-  .menu-wraper{
+  .menu-wraper {
     height: 100%;
+    overflow-x: hidden !important;
     box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
     padding-top: 50px;
     box-sizing: border-box;
     background-color: #001529;
     position: relative;
+  }
+  .menu-wraper .el-menu {
+    border-right: 0 !important;
   }
   .menu-wraper>.el-menu-vertical {
     border-right-color: #001529;
@@ -159,17 +161,31 @@
     opacity: 0 !important;
     background-color: red !important;
   }
+  .m-loading {
+    text-align: center;
+    line-height: 60px;
+  }
+</style>
+<style>
+  .el-scrollbar__wrap.menu-wraper {
+    overflow-x: hidden !important;
+  }
+  .menu-wraper a:hover {
+    text-decoration: none;
+  }
 </style>
 
 <template>
-  <div class="menu-wraper" id="menuWrap">
+  <el-scrollbar style="height: 100%;overflow-x: hidden;" class="menu-wraper" id="menuWrap">
     <div class="logo-wraper" :class="isCollapse?'w64':'w220'">
       <div class="sys-switch-wrap">
         <span @click="toggPlaSlowDown">
-          <i class="fa " :class="loading ? 'fa-spinner fa-spin' : 'fa-bars'" aria-hidden="true"></i>
+          <i :class="loading ? 'el-icon-loading' : 'icon iconfont icon-liebiao'" aria-hidden="true"></i>
         </span>
       </div>
-      <transition name="el-zoom-in-center"><div class="logo" v-show="!isCollapse"></div></transition>
+      <div class="logo" v-show="!isCollapse">
+        <img :src="logoImgUrl" alt="" height="26">
+      </div>
       <div class="plat-con-wrap" v-show="isPlatChShow">
         <a class="up-ang-icon">▲</a>
         <p v-for="(item, idx) in platSysOptions" :key="idx" @click="redirectSys(item.path)">
@@ -177,7 +193,6 @@
         </p>
       </div>
     </div>
-
     <div class="option-wrap" v-if="!isCollapse && showOptionWrap">
       <div class='se-txt-wrap'>
         <span>{{sysStr}}</span> <span class="search-btn" @click="showMenuSearchHandel"><i class="el-icon-search " ></i></span>
@@ -198,10 +213,8 @@
         </div>
       </transition>
     </div>
-
-    <div v-if="mLoading" style="text-align: center;line-height: 60px;">数据加载中...</div>
-    
     <el-menu
+      v-if="menus && menus.length > 0"
       :unique-opened="true"
       :default-active="defaultActive"
       class="el-menu-vertical"
@@ -210,72 +223,22 @@
       background-color="#001529"
       text-color="#cccccc"
       active-text-color="#409EFF">
-      <div v-for="first of menus" :key="first.sysno">
-        <el-menu-item :index="first.menuId" v-if="first.children && first.children.length === 0">
-          <template v-if="isCollapse">
-            <i class="iconfont icon-xian iconfont-mh-icon" aria-hidden="true"></i>
-            <span slot="title" @click="goAddress(first.menuId)" style="cursor: pointer;">
-              {{first.menuName}}
-            </span>
-          </template>
-          <template v-else>
-            <i class="iconfont icon-xian iconfont-mh-icon" aria-hidden="true"></i>
-            <router-link :to="first.menuId">
-              <a class="first-menu-link-a first-menu-style">{{first.menuName}}</a>
-            </router-link>
-          </template>
-        </el-menu-item>
-        <el-submenu :index="first.menuId" v-else>
-          <template slot="title">
-            <i :class="first.menuId" class="iconfont-mh-icon" aria-hidden="true"></i>
-            <span :class="isCollapse ? 'no-arrow' : null" v-show="!isCollapse">{{first.menuName}}</span>
-          </template>
-          <div v-for="second of first.children" :key="second.sysno">
-            <el-menu-item :index="second.menuId" v-if="second.children.length === 0">
-              <router-link tag="li" :to="second.menuId">
-                <a class="second-menu-link-a" :class="isCollapse ? null : 'second-menu-style'">{{second.menuName}}</a>
-              </router-link>
-            </el-menu-item>
-            <el-submenu :index="second.menuId" v-else>
-              <template slot="title">
-                <div class="second-menu-name-i-w">{{second.menuName}}</div>
-              </template>
-              <div v-for="third of second.children" :key="third.sysno">
-                <el-menu-item :index="third.menuId" v-if="third.children.length === 0">
-                  <router-link tag="li" :to="third.menuId">
-                    <a class="third-menu-link-a" :class="isCollapse ? null : 'third-menu-style'">{{third.menuName}}</a>
-                  </router-link>
-                </el-menu-item>
-                <!-- 四级内容 -->
-                <el-submenu :index="third.menuId" v-else>
-                  <template slot="title">
-                    <div class="third-menu-name-i-w">{{third.menuName}}</div>
-                  </template>
-                  <div v-for="fourth of third.children" :key="fourth.sysno">
-                    <el-menu-item :index="fourth.menuId">
-                      <router-link tag="li" :to="fourth.menuId">
-                        <a class="fourth-menu-link-a" :class="isCollapse ? null : 'fourth-menu-style'">{{fourth.menuName}}</a>
-                      </router-link>
-                    </el-menu-item>
-                  </div>
-                </el-submenu>
-              </div>
-            </el-submenu>
-          </div>
-        </el-submenu>
-      </div>
+      <slider-bar-item v-for="route in menus" :key="route.menuId" :route="route" />
     </el-menu>
-  </div>
+    <div v-if="mLoading" class="m-loading">数据加载中...</div>
+  </el-scrollbar>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import Storage from '@/utils/localStorage'
 import config from '@/utils/config'
 import commonUrl from '@/api/Common'
+import SliderBarItem from './SliderBarItem'
 export default{
   data() {
     return {
+      logoImgUrl: `${config.baseRouter}/static/h_logo.png`,
       mLoading: false,
-      isCollapse: false,
       defaultActive: this.$route.path,
       allMenus: [],
       allMenusTemp: [],
@@ -300,24 +263,20 @@ export default{
     // 设置默认展开项
     this.setDefauteActive();
   },
+  computed: {
+    isCollapse() {
+      return this.$store.state.common.collapse
+    }
+  },
   watch: {
     $route () {
       this.setDefauteActive()
     }
   },
+  components: {
+    'slider-bar-item': SliderBarItem
+  },
   methods: {
-    /**
-     * 关闭菜单
-     */
-    closeMenu () {
-      this.isCollapse = true
-    },
-    /**
-     * 展示菜单
-     */
-    showMenu () {
-      this.isCollapse = false
-    },
     /**
      * [modifyAllMenus 格式化菜单数据]
      * @param  {[type]} _list [description]
@@ -482,11 +441,7 @@ export default{
      */
     handleSelect(item) {
       this.$router.push(item.menuId)
-    },
-    goAddress(_path) {
-      this.$router.push(_path)
     }
-    
   }
 }
 </script>
