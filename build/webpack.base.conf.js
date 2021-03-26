@@ -52,6 +52,12 @@ module.exports = {
         exclude: /node_modules/,
         include: []
       },
+      // {
+      //   test: /\.less$/,
+      //   loader: 'style-loader!css-loader!less-loader',
+      //   exclude: /node_modules/,
+      //   include: []
+      // },
       {
         test: /\.js$/,
         loader: 'babel-loader',

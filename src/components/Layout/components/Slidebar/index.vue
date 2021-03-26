@@ -1,192 +1,145 @@
-<style scoped>
-  .logo-wraper {
-    height: 50px;
-    background-color: #002140;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.4);
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-  }
-  .w220 {
-    width: 220px;
-  }
-  .w64 {
-    width: 64px;
-  }
-  .logo {
-    width: 162px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .sys-switch-wrap {
-    padding: 0 0 0 20px;
-    cursor: pointer;
-  }
-  .sys-switch-wrap>span {
-    line-height: 50px;
-    padding: 10px 0;
-  }
-  .sys-switch-wrap>span>i {
-    font-size: 22px;
-    color: #FFF;
-  }
-  .option-wrap {
-    background-color: #1a2226;
-  }
-  .se-txt-wrap {
-    padding: 4px 20px;
-    color: #4b646f;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    flex-direction: row;
-  }
-  .search-btn {
-    padding-left: 20px;
-    cursor: pointer;
-  }
-  .up-ang-icon {
-    position: absolute;
-    top: -14px;
-    left: 10px;
-    color: #FFFFFF;
-  }
-  .plat-con-wrap {
-    width: 190px;
-    background-color: #FFFFFF;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    position: absolute;
-    top: 60px;
-    left: 15px;
-    border-radius: 6px;
-  }
-  .plat-con-wrap>p {
-    line-height: 46px;
-    font-size: 15px;
-    color: #555555;
-    text-align: left;
-    cursor: pointer;
-    padding: 0 20px;
-    box-sizing: border-box;
-  }
-  .plat-con-wrap>p:hover {
-    color: rgb(64, 158, 255);
-  }
-
+<style scoped lang="less">
   .menu-wraper {
     height: 100%;
     overflow-x: hidden !important;
-    box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
     padding-top: 50px;
     box-sizing: border-box;
-    background-color: #001529;
+    background-color: @colorSubBlack;
     position: relative;
-  }
-  .menu-wraper .el-menu {
-    border-right: 0 !important;
-  }
-  .menu-wraper>.el-menu-vertical {
-    border-right-color: #001529;
-    border-right-style: solid;
-    border-right-width: 1px;
-    box-sizing: border-box;
-  }
-  .menu-wraper .el-submenu .el-menu-item {
-    padding: 0 !important;
-  }
-  .menu-wraper .router-link-active>a.first-menu-link-a, .menu-wraper .router-link-active>a.second-menu-link-a, .menu-wraper .router-link-active>a.third-menu-link-a, .menu-wraper .router-link-activea.fourth-menu-link-a {
-    color: rgb(64, 158, 255) !important;
-  }
-  .menu-wraper .second-menu-name-i-w {
-    padding-left: 6px;
-  }
-  .menu-wraper .third-menu-name-i-w {
-    padding-left: 14px;
-  }
-  .menu-wraper .fourth-menu-name-i-w {
-    padding-left: 100px;
-  }
-  li.is-active a.first-menu-link-a {
-    color: rgb(64, 158, 255) !important;
-  }
-
-  .iconfont-mh-icon {
-    width: 24px;
-    height: 18px;
-    line-height: 18px;
-    text-align: center;
-    margin-right: 5px;
-    font-size: 16px;
-  }
-  .second-menu-link-a, .first-menu-link-a, .third-menu-link-a, .fourth-menu-link-a {
-    width: 100%;
-    text-decoration: none;
-    display: inline-block;
-    text-decoration: none;
-    color: rgb(204, 204, 204) !important;
-    box-sizing: border-box;
-  }
-  .second-menu-style {
-    padding-left: 46px !important;
-    padding-right: 10px;
-  }
-  .second-menu-style:hover {
-    text-decoration: none;
-  }
-  .third-menu-style {
-    padding-left: 74px !important;
-    padding-right: 10px;
-  }
-  .third-menu-style:hover {
-    text-decoration: none;
-  }
-  .fourth-menu-style {
-    padding-left: 100px !important;
-    padding-right: 10px;
-  }
-  .fourth-menu-style:hover {
-    text-decoration: none;
-  }
-  #menuWrap >>> span.no-arrow + i.el-submenu__icon-arrow {
-    display: none !important;
-    opacity: 0 !important;
-    background-color: red !important;
-  }
-  .m-loading {
-    text-align: center;
-    line-height: 60px;
+    .m-loading {
+      text-align: center;
+      line-height: 60px;
+    }
+    .logo-wraper {
+      height: 50px;
+      background-color: @colorSubBlack2;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 2021;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      padding: 0 20px;
+      box-sizing: border-box;
+      .menus-img-wrap {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sys-switch-wrap {
+        cursor: pointer;
+        span {
+          line-height: 50px;
+          padding: 10px 0;
+          i {
+            font-size: 22px;
+            color: @colorWhite;
+          }
+        }
+      }
+      .logo {
+        flex: 1;
+        width: 162px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .plat-con-wrap {
+        width: 190px;
+        background-color: @colorWhite;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        position: absolute;
+        top: 60px;
+        left: 15px;
+        border-radius: 6px;
+        .up-ang-icon {
+          position: absolute;
+          top: -14px;
+          left: 10px;
+          color: @colorWhite;
+        }
+        p {
+          line-height: 46px;
+          font-size: 15px;
+          color: @colorTitle;
+          text-align: left;
+          cursor: pointer;
+          padding: 0 20px;
+          box-sizing: border-box;
+        }
+        p:hover {
+          color: @colorMain;
+        }
+      }
+    }
+    .w220 {
+      width: 220px;
+    }
+    .w64 {
+      width: 64px;
+    }
+    .option-wrap {
+      background-color: @colorSubBlack3;
+      .se-txt-wrap {
+        padding: 4px 20px;
+        color: @colorSubTitle;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        flex-direction: row;
+      }
+      .search-btn {
+        padding-left: 20px;
+        cursor: pointer;
+      }
+    }
   }
 </style>
-<style>
-  .el-scrollbar__wrap.menu-wraper {
+<style lang="less">
+  .menu-wraper.bl-menus .el-scrollbar__wrap {
     overflow-x: hidden !important;
   }
   .menu-wraper a:hover {
     text-decoration: none;
   }
+  .menu-wraper.bl-menus .el-menu {
+    border-right: 0 !important;
+  }
+  .menu-wraper.bl-menus>.el-menu-vertical {
+    border-right-color: @colorSubBlack;
+    border-right-style: solid;
+    border-right-width: 1px;
+    box-sizing: border-box;
+  }
+</style>
+<style>
+  #menuWrap >>> span.no-arrow + i.el-submenu__icon-arrow {
+    display: none !important;
+    opacity: 0 !important;
+  } 
 </style>
 
 <template>
-  <el-scrollbar style="height: 100%;overflow-x: hidden;" class="menu-wraper" id="menuWrap">
+  <el-scrollbar class="menu-wraper bl-menus" id="menuWrap">
     <div class="logo-wraper" :class="isCollapse?'w64':'w220'">
-      <div class="sys-switch-wrap">
-        <span @click="toggPlaSlowDown">
+      <div class="menus-img-wrap" v-if="isCollapse">
+        <img :src="menusImgUrl" alt="" height="26">
+      </div>
+      <div class="sys-switch-wrap" v-if="visibleChangePlatform && !isCollapse">
+        <span 
+          @click="toggPlaSlowDown">
           <i :class="loading ? 'el-icon-loading' : 'icon iconfont icon-liebiao'" aria-hidden="true"></i>
         </span>
       </div>
       <div class="logo" v-show="!isCollapse">
-        <img :src="logoImgUrl" alt="" height="26">
+        <img :src="logoImgUrl" alt="" height="24">
       </div>
-      <div class="plat-con-wrap" v-show="isPlatChShow">
+      <div class="plat-con-wrap" v-if="isPlatChShow">
         <a class="up-ang-icon">▲</a>
         <p v-for="(item, idx) in platSysOptions" :key="idx" @click="redirectSys(item.path)">
           {{item.clientName}}
@@ -220,9 +173,9 @@
       class="el-menu-vertical"
       :class="isCollapse?'w64':'w220'"
       :collapse="isCollapse"
-      background-color="#001529"
-      text-color="#cccccc"
-      active-text-color="#409EFF">
+      :background-color="backgroundColor"
+      :text-color="navTextColor"
+      :active-text-color="activeTextColor">
       <slider-bar-item v-for="route in menus" :key="route.menuId" :route="route" />
     </el-menu>
     <div v-if="mLoading" class="m-loading">数据加载中...</div>
@@ -232,16 +185,23 @@
 import {mapGetters} from 'vuex'
 import Storage from '@/utils/localStorage'
 import config from '@/utils/config'
+import {redirect} from '@/utils/utils'
 import commonUrl from '@/api/Common'
 import SliderBarItem from './SliderBarItem'
+import {isBoomCreated} from '../../utils'
+import baseLess from '@/assets/style/base.less'
 export default{
   data() {
     return {
-      logoImgUrl: `${config.baseRouter}/static/h_logo.png`,
+      backgroundColor: baseLess.colorSubBlack,
+      activeTextColor: baseLess.colorMain,
+      navTextColor: baseLess.colorGrey,
+      visibleChangePlatform: config.visibleChangePlatform,
+      menusImgUrl: `${config.baseRouter}/static/menus.png`,
+      logoImgUrl: config.logoImgUrl ? config.logoImgUrl : `${config.baseRouter}/static/logo.png`,
       mLoading: false,
       defaultActive: this.$route.path,
       allMenus: [],
-      allMenusTemp: [],
       menus: [],
 
       // 是否显示平台切换的下拉框
@@ -287,15 +247,13 @@ export default{
         if(item.children.length !== 0) {
           this.modifyAllMenus(item.children)
         }else {
+          // 兼容配置菜单的时候开始位置加 '/' 或者不加 '/' 的形式
+          item.menuId = item.menuId && item.menuId.startsWith('/') ? item.menuId : `/${item.menuId}`
           let allMenusItem = {
-            menuId: item.menuId
-          }
-          let allMenusItemTemp = {
             menuName: item.menuName || '',
             menuId: item.menuId
           }
           this.allMenus.push(allMenusItem)
-          this.allMenusTemp.push(allMenusItemTemp)
           if(item.powerList && item.powerList.length) {
             this.userPermissionMap[item.menuId] = item.powerList
           }
@@ -308,7 +266,7 @@ export default{
      */
     getMenus() {
       this.mLoading = true
-      this.$http.post(commonUrl.queryMenu, {'queryUserPower': true, 'clientId': config.clientId, DIFFCITY: true}).then(res => {
+      this.$http.post(commonUrl.queryMenu, {'queryUserPower': true, 'clientId': config.clientId}).then(res => {
         this.mLoading = false
         // 设置获取到的菜单
         if (res && res.code === 0) {
@@ -324,13 +282,17 @@ export default{
               hash[next.menuId] ? '' : hash[next.menuId] = true && item.push(next);
               return item
             }, [])
-            // 本地缓存存储菜单
-            Storage.set("allMenus", newAllMenusArr)
+            // 根据系统id本地缓存存储菜单
+            let allMenusTemp = Storage.get('_menus') ? {...Storage.get('_menus')} : {}
+            allMenusTemp[`${config.clientId}`] = [...newAllMenusArr]
+            Storage.set('_menus', allMenusTemp)
             this.menus = res.data
             this.$store.dispatch('common/setUserOptions', {...this.userPermissionMap})
           }else {
-            // 本地缓存存储菜单
-            Storage.set("allMenus", this.allMenus)
+            // 根据系统id本地缓存存储菜单
+            let allMenusTemp = Storage.get('_menus') ? {...Storage.get('_menus')} : {}
+            allMenusTemp[`${config.clientId}`] = [...this.allMenus]
+            Storage.set('_menus', allMenusTemp)
             this.menus = []
             setTimeout(() => {
               this.$router.push('/noopt')
@@ -341,10 +303,7 @@ export default{
         throw new Error(res.msg)
       }).catch(e => {
         this.mLoading = false
-        this.$notify.error({
-          title: '提示(菜单接口)',
-          message: e.message
-        })
+        console.log("提示(菜单接口):", e.message);
       })
     },
     /**
@@ -353,7 +312,19 @@ export default{
     setDefauteActive() {
       // 设置默认展开项
       if(this.$route.path) {
-        this.defaultActive = this.$route.path.match(/\/[^\/]+/)[0] 
+        if(isBoomCreated(this.$route.path)) {
+          // 通用报表 boom 生成的页面
+          if(this.$route.path.startsWith('/mixReport')) {
+            // 复合报表
+            let pathSplit = this.$route.path.split('/')
+            this.defaultActive = `/${pathSplit[1]}/${pathSplit[2]}`
+          }else {
+            // 普通报表
+            this.defaultActive = this.$route.path
+          }
+        }else {
+          this.defaultActive = this.$route.path.match(/\/[^\/]+/)[0]
+        }
       }else {
         this.defaultActive = '/index'
       }
@@ -383,7 +354,7 @@ export default{
                 // 未展开 未获取平台   获取平台成功之后  点击展开
                 this.isPlatChShow = !this.isPlatChShow
               } else {
-                this.$message.warning('不好意思，您暂无切换其他系统的权限！')
+                this.$tip.message('不好意思，您暂无切换其他系统的权限！', 'warning')
               }
               return
             }
@@ -414,12 +385,7 @@ export default{
      * @return {[type]}       [description]
      */
     redirectSys (_path) {
-      let protocol = window.location.protocol
-      let host = window.location.host
-      let pathName = _path
-      let str = '//'
-      let url = `${protocol}${str}${host}${pathName}`
-      window.location.href = url
+      redirect(_path)
     },
     showMenuSearchHandel() {
       this.showSearchInput = !this.showSearchInput
@@ -428,7 +394,7 @@ export default{
      * 菜单搜索框查询
      */
     querySearch(queryString, cb) {
-      let results = this.allMenusTemp.filter((item) => {
+      let results = this.allMenus.filter((item) => {
         return item.menuName.includes(queryString)
       });
       // 调用 callback 返回建议列表的数据
@@ -440,7 +406,32 @@ export default{
      * @return: 
      */
     handleSelect(item) {
-      this.$router.push(item.menuId)
+      if(isBoomCreated(item.menuId)) {
+        // type=menu 表示是主菜单
+        this.$router.push(`${item.menuId}?type=menu`)
+        this.goAddress(item)
+      }else {
+        this.$router.push(item.menuId)
+      }
+    },
+    goAddress(route) {
+      // 通用报表生成的页面跳转调用生成tab方法
+      if(!isBoomCreated(route.menuId)) return
+      let newRoute = {
+        path: route.menuId,
+        fullPath: route.menuId,
+        name: route.menuId.slice(1),
+        params: {},
+        query: {
+          type: 'menu'
+        },
+        hash: {},
+        meta: {
+          title: route.menuName,
+          usePathKey: true
+        }
+      }
+      newRoute.meta && newRoute.meta.title && this.$store.dispatch('tagsView/ADD_TAG_AND_CACHE', newRoute)
     }
   }
 }

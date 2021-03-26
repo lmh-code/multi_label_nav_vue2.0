@@ -1,5 +1,5 @@
-<style scoped>
-  @import '../../assets/style/tip.css';
+<style lang="less" scoped>
+  @import '../../assets/style/tip.less';
 </style>
 
 <template>
@@ -19,6 +19,9 @@ export default {
       imgUrl: `${config.baseRouter}/static/welcome.png`,
       sysName: config.sysName
     }
+  },
+  created() {
+    if(config.homeRouter) this.$router.replace(config.homeRouter)
   }
 }
 </script>

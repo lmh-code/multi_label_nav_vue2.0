@@ -1,5 +1,5 @@
-<style scoped>
-@import '../../assets/style/tip.css';
+<style lang="less" scoped>
+@import '../../assets/style/tip.less';
 </style>
 
 <template>

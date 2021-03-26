@@ -2,9 +2,9 @@
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
 const path = require('path')
-const rootConfig = require('../rootCon')
-const assetsPublicPath = `${rootConfig.baseRouter}/`
-const port = rootConfig.port
+const webBaseConfig = require('../web.base.config')
+const assetsPublicPath = `${webBaseConfig.baseRouter}/`
+const port = webBaseConfig.port
 
 module.exports = {
   dev: {

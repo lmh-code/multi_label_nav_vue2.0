@@ -1,15 +1,23 @@
-<style scoped>
+<style scoped lang="less">
   .layout-wrap {
     height: 100%;
-  }
-  .layout-wrap .aside-wrap {
-    height: 100%;
-    background-color: #001529;
-  }
-  .layout-wrap .el-main-container {
-    padding: 0 20px 20px; 
-    height: 100%; 
-    position: relative;
+    .aside-wrap {
+      height: 100%;
+      background-color: @colorSubBlack;
+    }
+    .header-wrap {
+      padding: 0; 
+      height: 50px !important;
+    }
+    .menu-tags-wrap {
+      padding: 0 20px; 
+      background-color: @colorMavBg;
+    }
+    .el-main-container {
+      padding: 4px 20px 20px; 
+      height: 100%; 
+      position: relative;
+    }
   }
 </style>
 
@@ -19,39 +27,44 @@
     <el-aside :width="isCollapse ? '64px' : '220px'" class="aside-wrap">
       <slidebar ref="slidebar"/>
     </el-aside>
-    <el-container>
+    <el-container v-loading="getIsShowLoading">
       <!-- 顶部 -->
-      <el-header style="padding: 0; height: 46px;">
+      <el-header class="header-wrap">
         <header-wraper @changePass="changePass" ref="headerWraper"></header-wraper>
       </el-header>
+      <div class="menu-tags-wrap">
+        <menu-tags/>
+      </div>
       <!-- 主要内容 -->
-      <el-main class="el-main-container" v-loading="getIsShowLoading">
-        <breadcrumb></breadcrumb>
-        <keep-alive>
-          <router-view v-if="$route.meta.keepAlive"></router-view>
-        </keep-alive>
-        <router-view v-if="!$route.meta.keepAlive"></router-view>
+      <el-main class="el-main-container">
+        <bl-page-view :include="cachedViews" :cacheable="true" transition-name="el-fade-in-linear">
+        </bl-page-view>
+        <el-backtop target=".el-main-container" :right="20" style="background: #E3E7EA;"></el-backtop>
       </el-main>
     </el-container>
-
     <!-- 修改密码 -->
     <change-pass ref="changePass"></change-pass>
   </el-container>
 </template>
 
-
 <script>
-import axios from 'axios'
 import {mapGetters} from 'vuex'
 import Storage from '@/utils/localStorage'
 import {loginOut} from '@/utils/utils'
 import ChangePass from "@/components/Common/ChangePass"
 import Header from "./components/Header"
 import Slidebar from "./components/Slidebar"
-import Breadcrumb from "./components/Breadcrumb"
-import commonUrl from '@/api/Common.js'
+import MenuTags from "./components/MenuTags"
+import BlPageView from './components/BlPageView'
+import commonAjaxHandel from '@/server/Common'
+import {findIndexByKey} from '@/utils/utils'
+import watermark from '@/utils/watermark'
+import config from '@/utils/config'
+import refreshTokenMixin from '@/mixin/refreshToken'
+import perfectSCMAjaxHandel from '@/server/perfectSCM'
 export default {
   name: 'App',
+  mixins: [refreshTokenMixin],
   data() {
     return {
       loading: false,
@@ -65,35 +78,48 @@ export default {
     // 记录一次时间
     this.lastTime = new Date().getTime()
     // 检测用户是否处于登录状态
-    if(this.checkLogin()) {
-      // 刷新token
-      this.refreshToken()
-    }else {
-      loginOut()
-    }
+    if(!this.checkLogin()) loginOut()
+
+    // 供应商系统，检测一下当前登录账号状态
+    if(config.clientId === 6) this.checkAccountStatus()
+    if(config.clientId === 9) this.$store.dispatch('regionMains/GET_MAINS')
   },
   mounted() {
     let isFirstLogin = Storage.get('loginInfo') ? Storage.get('loginInfo').isFirstLogin : false
-    if(isFirstLogin) {
-      this.changePass()
-    }
+    config.clientId !== 6 && isFirstLogin && this.changePass()
+    // 刷新token
+    this.refreshToken()
   },
   computed: {
     ...mapGetters({
-      currentDate: 'common/GET_CURRENT_DATE'
+      currentDate: 'common/getCurrentDate',
+      cachedViews: 'tagsView/GET_CACHED_VIEWS',
     }),
     getIsShowLoading() {
       return this.$store.state.common.loading
     },
     isCollapse() {
       return this.$store.state.common.collapse
+    },
+    loginInfo() {
+      return this.$store.state.login.loginInfo
+    }
+  },
+  watch: {
+    loginInfo: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        // 当用户打开系统为BI系统时，设置水印。
+        if(config.clientId === 4) this.setWatermark(newVal)
+      }
     }
   },
   components: {
     "header-wraper": Header,
-    "breadcrumb": Breadcrumb,
     "change-pass": ChangePass,
-    "slidebar": Slidebar
+    "slidebar": Slidebar,
+    "menu-tags": MenuTags,
+    "bl-page-view": BlPageView
   },
   methods: {
     /**
@@ -106,13 +132,8 @@ export default {
       if(this.currentTime - this.lastTime > this.timeout) {
         // 长时间未操作
         if(this.$route.path !== '/login') {
-          this.$notify({
-            title: '警告',
-            message: '长时间未操作，自动退出',
-            type: 'warning'
-          })
           // 调用退出的方法
-          loginOut()
+          loginOut('/login?status=timeOut')
         }else {
           this.lastTime = new Date().getTime()
         }
@@ -125,61 +146,25 @@ export default {
      * @return {[type]} [description]
      */
     changePass() {
-      this.$refs.changePass.setDefault()
+      this.$refs.changePass && this.$refs.changePass.setDefault()
     },
-    /**
-     * [checkLogin 检查是否有登录信息]
-     * @return {Boolean} [true 已登录 false 未登录]
-     */
-    checkLogin() {
-      return Storage.get('loginInfo') && this.$route.path !== "/login" ? true : false
+    setWatermark(data) {
+      if(!this.checkLogin()) return
+      watermark.clear()
+      watermark.set(data.userNickname, data.userNo)
     },
-    refreshToken() {
-      let loginInfo = Storage.get('loginInfo')
-      if(!loginInfo) {
-        this.$router.push("/login?status=401")
-        return
-      }
-      // 刷新token
-      let headers = {
-        'Authorization': 'Basic d2ViOmQ4YmZjMzQwMWE3NTg5ZTc4NGIwNmJkZmdhMmFkMWM0ZQ=='
-      }
-      let params = new URLSearchParams()
-      params.append('grant_type', 'refresh_token')
-      params.append('refresh_token', loginInfo.refresh_token)
-
-      axios.post(commonUrl.token, params, {headers: headers}).then(res => {
-        let data = res.data
-        if (!data || !data.token_type || !data.access_token) {
-          return res
+    checkAccountStatus() {
+      perfectSCMAjaxHandel.getUrlGuide().then(res => {
+        // tag 审核状态:  -1:待注册 0:已保存 2:待审核 4:已审核 32:驳回
+        // urlType 供应商入口类型, 0:供应商注册 2:erp注入
+        if(res.code === 0 && res.data) {
+          if(res.data.urlType !== 2 && res.data.tag !== 4) this.$router.replace('/perfect')
+          return
         }
-
-        let selectstore = {}
-        if(data.selectstore) {
-          selectstore = JSON.parse(data.selectstore)
-        }
-        Storage.set('loginInfo', {
-          StoreName: selectstore.storeName,
-          Operator: data['user:name'],
-          UserNO: data['user:name'],
-          UserName: data['user:nickname'],
-          token_type: data.token_type,
-          StoreSysNo: selectstore.storeSysNo,
-          StoreNO: selectstore.storeNo,
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          IsFirstLogin: data.isFirstLogin === '1',
-          IsDC: true,
-          net_token: data.net_token,
-          dashboardPermission: data['user:dashboardPermission'],
-          userName: data['user:name'],
-          userNickname: data['user:nickname'],
-          isFirstLogin: data.isFirstLogin === '1',
-          expiresTime: data['user:expires'],
-          selectStore: data.selectstore,
-          loginTime: new Date().getTime()
-        })
-      }).catch(({response}) => {})
+        throw new Error(res.msg)
+      }).catch(e => {
+        console.log("获取供应商账号登录状态:", e.message);
+      })
     }
   }
 }

@@ -51,7 +51,7 @@
     },
     methods: {
       getBreadcrumb() {
-        this.breadcrumbList = this.$route.meta.breadcrumb && this.$route.meta.breadcrumb.length ? this.$route.meta.breadcrumb : [{name: '首页', path: ''}]
+        this.breadcrumbList = this.$route.meta.breadcrumbList && this.$route.meta.breadcrumbList.length ? this.$route.meta.breadcrumbList : [{name: '首页', path: ''}]
       }
     }
   }

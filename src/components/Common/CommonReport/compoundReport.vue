@@ -1,21 +1,28 @@
 <style>
-  .common-report-tab .el-tabs__header {
+  .common-mixreport-tab {
+    margin: 6px 0 0;
+  }
+  .common-mixreport-tab .el-tabs__header {
     margin-bottom: 0
   }
-  .common-report-tab .el-tabs__header .el-tabs__item.is-active{
+  .common-mixreport-tab .el-tabs__header .el-tabs__item.is-active{
     background: #fff;
+  }
+  .common-mixreport-tab .el-tabs__item {
+    height: 36px;
+    line-height: 36px;
   }
 </style>
 <template>
   <div>
-    <el-tabs type="card" @tab-click="goTab" v-model="activeName" class="common-report-tab" :before-leave="beforeLeave">
-      <el-tab-pane :key="item.pageId" v-for="item in tabInfos" :label="item.title" :name="item.title"></el-tab-pane>
+    <el-tabs type="card" @tab-click="goTab" v-model="activeName" class="common-mixreport-tab" :before-leave="beforeLeave">
+      <el-tab-pane :key="item.pageCode" v-for="item in tabInfos" :label="item.title" :name="item.title"></el-tab-pane>
     </el-tabs>
-    <common-report ref="NewReport"></common-report>
+    <common-report ref="CommonReport"></common-report>
   </div>
 </template>
 <script>
-import NewReport from './index'
+import CommonReport from './index'
 import Storage from '@/utils/localStorage'
 const commonReport = {
   //复合表查询
@@ -27,68 +34,67 @@ export default {
       activeName: '',
       tabInfos: [],
       pId: '',
-      pageId: '',
+      pageCode: '',
       searchItems: [],
       queryItems: [],
       weekDates: []
     }
   },
   components: {
-    'common-report': NewReport
+    'common-report': CommonReport
   },
   computed: {
   },
   created () {
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?43c5b659702bcb76a4dde9d1eb06afba";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
     let routeParams = this.$route.params
     this.pId = routeParams.pid;
-    this.pageId = routeParams.id;
+    this.pageCode = routeParams.id;
     this.tabInfos = []
-    this.getMixReport()
-  },
-  beforeRouteUpdate(to, from, next) {
-    this.pId = to.params.pid;
-    this.pageId = to.params.id;
-    this.tabInfos = []
-    next()
     this.getMixReport()
   },
   methods: {
     beforeLeave(activeName, oldActiveName) {
       this.tabInfos.forEach((item, index) => {
         if(oldActiveName === item.title) {
-          this.searchItems[index] = this.$refs.NewReport.searchItems
-          this.queryItems[index] = this.$refs.NewReport.queryItems
-          this.weekDates[index] = this.$refs.NewReport.weekDates
+          this.searchItems[index] = this.$refs.CommonReport.searchItems
+          this.queryItems[index] = this.$refs.CommonReport.queryItems
+          this.weekDates[index] = this.$refs.CommonReport.weekDates
         }
       })
     },
     goTab(tab, event) {
-      let pageId = this.tabInfos[tab.index].pageId
+      let pageCode = this.tabInfos[tab.index].pageCode
       let path = ''
       if(this.$route.path.indexOf('mixReport') > -1) {
         path = this.$route.path.match(/\/mixReport\/[1-9]\d*/)[0]
       }else if(this.$route.path.indexOf('previewMix') > -1) {
         path = this.$route.path.match(/\/previewMix\/[1-9]\d*/)[0]
       }
-      let realPath = `${path}/${pageId}`
+      let realPath = `${path}/${pageCode}`
       let obj = Storage.get('jumpReport')
-      if(obj && obj[pageId]) {
-        delete obj[pageId]
+      if(obj && obj[pageCode]) {
+        delete obj[pageCode]
         Storage.set('jumpReport', obj)
       }
-      
       this.$router.push(realPath)
-      this.$refs.NewReport.setDefault(pageId, this.searchItems[tab.index], this.queryItems[tab.index], this.weekDates[tab.index])
+      this.$refs.CommonReport.setDefault(pageCode, this.searchItems[tab.index], this.queryItems[tab.index], this.weekDates[tab.index])
     },
     getMixReport() {
-      this.$http.post(commonReport.mix, {id: this.pId}).then((res) => {
+      this.$http.post(commonReport.mix, {id: this.pId}, null, null, 'boomdebug').then((res) => {
         if (res.code === 0) {
           if(res.data && res.data.tabInfos) {
             this.tabInfos = res.data.tabInfos
             let index = 0;
-            if(this.pageId && this.tabInfos && this.tabInfos.length) {
+            if(this.pageCode && this.tabInfos && this.tabInfos.length) {
               this.tabInfos.forEach((item, i) => {
-                if(item.pageId == this.pageId) {
+                if(item.pageCode == this.pageCode) {
                   index = i
                 }
               })

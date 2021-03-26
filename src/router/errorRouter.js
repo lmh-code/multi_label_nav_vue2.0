@@ -1,7 +1,7 @@
 const errorRouter = [
   {
     path: '/error',
-    name: '未找到页面',
+    name: 'error',
     meta: {
       title: '未找到页面',
       scrollToTop: true,
@@ -15,7 +15,7 @@ const errorRouter = [
   },
   {
     path: '/noopt',
-    name: '暂无访问权限',
+    name: 'noOpt',
     meta: {
       title: '暂无访问权限',
       scrollToTop: true,

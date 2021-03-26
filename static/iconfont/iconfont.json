@@ -6,6 +6,69 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "17619520",
+      "name": "采购出入库",
+      "font_class": "tubiaozhizuomoban-154",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "2639610",
+      "name": "销售查询",
+      "font_class": "xiaoshouchaxun",
+      "unicode": "e6fb",
+      "unicode_decimal": 59131
+    },
+    {
+      "icon_id": "9227745",
+      "name": "订货管理",
+      "font_class": "dinghuoguanli",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "10518340",
+      "name": "销售查询",
+      "font_class": "xiaoshouchaxun1",
+      "unicode": "e61f",
+      "unicode_decimal": 58911
+    },
+    {
+      "icon_id": "2689949",
+      "name": "对账管理",
+      "font_class": "duizhangguanli1",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "1879114",
+      "name": "结算管理",
+      "font_class": "jiesuanguanli2",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "4441580",
+      "name": "结算管理",
+      "font_class": "jiesuantongji",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "1249080",
+      "name": "资质",
+      "font_class": "zizhi",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "1977862",
+      "name": "销售报价管理",
+      "font_class": "xiaoshoubaojiaguanli",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    },
+    {
       "icon_id": "12473808",
       "name": "列表",
       "font_class": "liebiao",

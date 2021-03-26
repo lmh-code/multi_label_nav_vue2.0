@@ -35,18 +35,19 @@
 </template>
 
 <script>
-  import config from '@/utils/config'
   import commonUrl from '@/api/Common'
   import Storage from '@/utils/localStorage'
+  import {checkStr} from '@/utils/validate'
+  import {loginOut} from '@/utils/utils'
+  import config from '@/utils/config'
   let Base64 = require('js-base64').Base64
-  const reg = config.passwordReg
   export default {
     data() {
       let validPwd = (rule, value, callback) => {
         if (!value.trim()) {
           return callback(new Error('请输入新密码'))
         }
-        if (!(reg.test(value))) {
+        if (!(checkStr(value, 'pwd'))) {
           return callback(new Error('密码必须包含数字及大、小写字母，长度为8-20个字符'))
         }
         callback()
@@ -83,8 +84,12 @@
             { required: true, message: '请再次输入新密码', trigger: 'blur' },
             {validator: validPwd2, trigger: 'blur'}
           ]
-        },
-        isFirstLogin: Storage.get('loginInfo') ? Storage.get('loginInfo').isFirstLogin : false
+        }
+      }
+    },
+    computed: {
+      isFirstLogin() {
+        return Storage.get('loginInfo') ? Storage.get('loginInfo').isFirstLogin && config.clientId !== 6 : false
       }
     },
     methods: {
@@ -109,17 +114,13 @@
                 this.isDisabled = false
               }, 800)
               if (res.code === 0) {
-                localStorage.removeItem('loginInfo')
-                window.location.replace(`${config.baseRouter}/login?status=pok`)
+                loginOut('/login?status=pok')
                 return
               }
               throw new Error(res.msg)
             }).catch(e => {
               this.isDisabled = false
-              this.$notify.error({
-                title: '提示',
-                message: e.message
-              })
+              this.$tip.notify(e.message || '', 'error', '系统提示')
             })
           }else {
             return false

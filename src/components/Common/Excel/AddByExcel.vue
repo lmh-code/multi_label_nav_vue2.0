@@ -1,4 +1,4 @@
-<style>
+<style scoped lang="less">
   .p-t {
     margin-bottom: 10px;
   }
@@ -14,7 +14,7 @@
     height: 32px;
     line-height: 32px;
     overflow: hidden;
-    border: 1px solid #ececec;
+    border: 1px solid @colorSplit;
     border-radius: 4px;
     padding: 0 10px;
     position: relative;
@@ -22,7 +22,7 @@
   }
   
   .label-wrap {
-    border: 1px solid #ececec;
+    border: 1px solid @colorSplit;
     border-radius: 4px;
     position: relative;
     top: 5px;
@@ -37,8 +37,8 @@
   }
   
   .label-wrap > .excel-file-label:hover {
-    color: #fff;
-    background-color: #66b1ff;
+    color: @colorWhite;
+    background-color: @colorSubMain;
     border-radius: 4px;
   }
 </style>
@@ -49,7 +49,8 @@
       :title="title" 
       :visible.sync="isShow"
       :close-on-click-modal="false"
-      :close-on-press-escape="false" 
+      :close-on-press-escape="false"
+      :show-close="false"
       width='450px'>
       <el-form ref="form" label-width="80px">
         <el-form-item label="本地上传">
@@ -65,14 +66,14 @@
             </div>
             <div class="d-btn-wrap">
               <span>请按EXCEL模板格式导入</span>
-              <el-button type="text" @click="downloadModel" size="mini" :disabled="isDisabled">下载模板</el-button>
+              <el-button type="text" @click="downloadModel" size="mini">下载模板</el-button>
             </div>
           </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="closeDialog" size="mini">取消</el-button>
-        <el-button type="primary" @click="doConfirmHandel" size="mini" :disabled="!file.name || conDisabled" :loading="saveLoading">确定</el-button>
+        <el-button @click="doCloseHandel" size="mini">取消</el-button>
+        <el-button type="primary" @click="doConfirmHandel" size="mini" :disabled="!file.name || isDisabled">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -83,64 +84,65 @@
   import exportSheet from '@/utils/exportExcel'
   import Storage from '@/utils/localStorage'
   export default {
+    props: {
+      visible: { // 是否显示
+        type: Boolean,
+        default: false
+      },
+      title: { // 标题
+        type: String,
+        default: '批量添加'
+      },
+      elId: { // input的唯一标识，防止同一个页面出现多个excel导入，多个的时候可以传入不同的id
+        type: String,
+        default: 'addByExcel'
+      },
+      exportConfig: { // 导出配置
+        type: Object,
+        default: () => {}
+      }
+    },
     data () {
       return {
-        elId: 'addByExcel', // input的唯一标识，防止同一个页面出现多个excel导入，多个的时候可以传入不同的id
-        conDisabled: false, // 防止多次点击确定按钮
-        isDisabled: false, // 下载模板按钮防止多次点击
-        saveLoading: false,
-        title: '批量添加',
+        isDisabled: false, // 防止多次点击确定按钮
         isShow: false,
         formLabelWidth: '70px',
         file: {name: ''}, // 导入数据
-        // 导入商品
-        exportGoods: [],
-        tempConfig: {},
-        // 批量添加商品集合
-        list: []
-  
+        exportGoods: [], // 导入商品
+        list: [] // 批量添加商品集合
+      }
+    },
+    watch: {
+      visible: {
+        immediate: true,
+        handler(newVal) {
+          this.isShow = newVal
+          this.isDisabled = false
+          // 清除当前选择的文件信息
+          this.resetExcelFile()
+        }
       }
     },
     methods: {
-      /**
-       * [setDefaultMsg 设置弹框默认属性]
-       * @param {[type]} _params [自定义参数]
-       */
-      setDefaultMsg (_params) {
-        this.isShow = true
-        this.title = _params.title || ''
-        this.tempConfig = _params.tempConfig || {}
-        this.elId = _params.elId || 'addByExcel'
-        // 清除当前选择的文件信息
-        this.resetExcelFile()
-      },
       /**
        * [downloadModel 下载模板]
        * @return {[type]} [description]
        */
       downloadModel () {
-        this.isDisabled = true
         let tableData = []
         let tableDataItem = {}
-        for(let key in this.tempConfig) {
+        for(let key in this.exportConfig) {
           tableDataItem[key] = ''
         }
         tableData.push(tableDataItem)
-        const tHeader = utils.objectToArray(this.tempConfig, false)
-        const filterVal = utils.objectToArray(this.tempConfig, true)
+        const tHeader = utils.objectToArray(this.exportConfig, false)
+        const filterVal = utils.objectToArray(this.exportConfig, true)
         exportSheet.ExportJsonToExcel({
           header: tHeader,
           filterVal,
           data: tableData,
           filename: `${this.title}模板`
         })
-        setTimeout(() => {
-          this.$notify.success({
-            title: '温馨提示',
-            message: `${this.title}模板下载成功`
-          })
-          this.isDisabled = false
-        }, 500)
       },
       /**
        * [handleFileSelect 选择文件发生变化]
@@ -169,54 +171,27 @@
   
         let items = []
         let parseConfig = {}
-        for (let key in this.tempConfig) {
-          parseConfig[this.tempConfig[key]] = key
+        for (let key in this.exportConfig) {
+          parseConfig[this.exportConfig[key]] = key
         }
         items = exportSheet.parseToJSON(this.file, parseConfig)
         items.then((result) => {
-          result.forEach(item => {
-            // sfInStockStr 判断顺丰仓是否是现货时使用 默认true
-            if(item.sfInStockStr === '是') {
-              item.sfInStock = true
-            }else if(item.sfInStockStr === '否') {
-              item.sfInStock = false
-            }else {
-              item.sfInStock = true
-            }
-          })
+          this.isDisabled = false
           this.list = result
         }).catch()
       },
-      /**
-       * [doConfirmHandel 点击确定]
-       * @return {[type]} [description]
-       */
       doConfirmHandel() {
-        this.conDisabled = true
+        this.isDisabled = true
         let params = {
           dataList: this.list
         }
-        this.$emit("doConfirmHandel", params)
+        this.$emit("confirm", params)
+        setTimeout(() => {
+          this.isDisabled = false
+        }, 1000);
       },
-      /**
-       * @description: 是否可继续提交
-       * @param {type} 
-       * @return: 
-       */
-      closeDisabled() {
-        this.conDisabled = false
-        // 清除当前选择的文件信息
-        this.resetExcelFile()
-      },
-      /**
-       * @description: 关闭弹窗
-       * @param {type} 
-       * @return: 
-       */
-      closeDialog() {
-        this.isShow = false
-        // 清除当前选择的文件信息
-        this.resetExcelFile()
+      doCloseHandel() {
+        this.$emit("close")
       },
       resetExcelFile() {
         this.file = {name: ''}

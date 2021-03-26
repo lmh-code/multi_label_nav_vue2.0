@@ -41,6 +41,15 @@ exports.cssLoaders = function (options) {
         })
       })
     }
+    // 配置引入全局less文件
+    if (loader == 'less') {
+      loaders.push({
+        loader: 'style-resources-loader',
+        options: {
+          patterns:path.resolve(__dirname, "../src/assets/style/base.less")
+        }
+      })
+    }
 
     // Extract CSS when that option is specified
     // (which is the case during production build)

@@ -1,4 +1,3 @@
-import store from '../store';
 import config from './config';
 import Storage from './localStorage';
 /**
@@ -90,19 +89,13 @@ export function removeItemByKey (k, array) {
  * @param array {Array}
  * @returns {number} 索引
  */
-export function findIndexByKey (k, array) {
-  let val = -1
-  array.forEach((item, index) => {
-    if (typeof (item) === 'object') {
-      for (let key of Object.keys(item)) {
-        if (k === item[key]) {
-          val = index
-          break
-        }
-      }
-    }
+export function findIndexByKey (key, value, array) {
+  if(!array || array.length === 0) {
+    return false
+  }
+  return array.some(item => {
+    return item[key] === value
   })
-  return val
 }
 
 /**
@@ -176,31 +169,6 @@ export function moneyToFixed(_money) {
 }
 
 /**
- * [showLoading 展示loading]
- * @return {[type]} [description]
- */
-export function showLoading() {
-  // 展示loading
-  let param = {
-    showLoading: true
-  }
-  store.dispatch('common/showLoading', param)
-}
-
-/**
- * [clearLoading 清除全局loading]
- * @param  {[type]} _val [description]
- * @return {[type]}      [description]
- */
-export function clearLoading() {
-  // 清除loading
-  let param = {
-    showLoading: false
-  }
-  store.dispatch('common/showLoading', param)
-}
-
-/**
  * @description: 退出登录
  */
 export function loginOut(path) {
@@ -239,20 +207,20 @@ export function removeElFromArr(arr, item) {
  * @param  {[type]} pName [description]
  * @return {[type]}       [description]
  */
-export function compareKey(pName) {  
-  return function(obj1, obj2) {  
-    var val1 = obj1[pName];  
-    var val2 = obj2[pName];  
-      
-    if(val1 < val2) {  
-      return -1;  
-    }else if(val1 > val2) {  
-      return 1;  
-    }else{  
-      return 0;  
-    }  
-  }  
-}  
+export function compareKey(pName) {
+  return function(obj1, obj2) {
+    var val1 = obj1[pName];
+    var val2 = obj2[pName];
+
+    if(val1 < val2) {
+      return -1;
+    }else if(val1 > val2) {
+      return 1;
+    }else{
+      return 0;
+    }
+  }
+}
 
 /**
  * [getSubtract 数组对象求差集]
@@ -377,7 +345,7 @@ export function getAllWeek(date) {
 /**
  * @description: 将对象的key转化成数组
  * @param {type} byeKey true 将key转化成数组   false将key对应的值转化成数组
- * @return: 
+ * @return:
  */
 export function objectToArray(obj, byeKey) {
   let arrList = []
@@ -393,8 +361,8 @@ export function objectToArray(obj, byeKey) {
 
 /**
  * @description: 将标准时间转换为时间戳
- * @param {type} 
- * @return: 
+ * @param {type}
+ * @return:
  */
 export function changeDateToTimestamp(dateStr) {
   if(dateStr) {
@@ -408,7 +376,7 @@ export function changeDateToTimestamp(dateStr) {
 /**
  * @description: excel 列索引（数字）转列名
  * @param {type} columnNumber 索引值
- * @return {type} 
+ * @return {type}
  */
 export function indexToColName(columnNumber) {
   let dividend = columnNumber;
@@ -418,7 +386,7 @@ export function indexToColName(columnNumber) {
     modulo = (dividend - 1) % 26;
     columnName = String.fromCharCode(65 + modulo) + columnName;
     dividend = parseInt((dividend - modulo) / 26);
-  } 
+  }
   return columnName;
 }
 
@@ -428,12 +396,126 @@ export function indexToColName(columnNumber) {
  * @return pre {number} 格式化的精度
  */
 export function fixedNum(num, pre = 2) {
-  if (isNaN(parseFloat(num))) return 'error'
-  if (num.toString().indexOf('.') === -1) return num
+  if (isNaN(parseFloat(num))) return NaN
+  if (num.toString().indexOf('.') === -1) return Number(num)
   let decimal = num.toString().split('.')[1]
   if (decimal.length < pre) {
+    return Number(num)
+  } else {
+    return Number((Math.round(num * Math.pow(10, pre)) / Math.pow(10, pre)).toFixed(pre))
+  }
+}
+
+/**
+ * formatDate 格式化日期 yyyy-MM-dd ios默认是utc时间比gmt少8个小时  2017-11-30新增 支持解析到秒
+ * @param str
+ * @param seconds
+ * @returns {string}
+ */
+export function formatDate(str, seconds, isNow = false) {
+  if (!str || str.toString().trim() === '') {
+    return ''
+  }
+
+  function parse(n) {
+    return n < 10 ? ('0' + n) : n
+  }
+
+  let dt = new Date(str)
+  let y = dt.getFullYear()
+  let m = dt.getMonth() + 1
+  let d = dt.getDate()
+  if (!seconds) {
+    return [y, parse(m), parse(d)].join('-')
+  } else if (seconds && isNow) {
+    let nowDate = new Date()
+    let h = nowDate.getHours()
+    let M = nowDate.getMinutes()
+    let s = nowDate.getSeconds()
+    return [y, parse(m), parse(d)].join('-') + ' ' + [parse(h), parse(M), parse(s)].join(':')
+  } else {
+    let h = dt.getHours()
+    let M = dt.getMinutes()
+    let s = dt.getSeconds()
+    return [y, parse(m), parse(d)].join('-') + ' ' + [parse(h), parse(M), parse(s)].join(':')
+  }
+}
+
+
+export function isNumber(val) {
+  let regPos = /^\d+(\.\d+)?$/; // 非负浮点数
+  let regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; // 负浮点数
+  let regZero = /^([0]\d+)|([-][0]\d+)(\.\d+)?$/ // 001 00.1 -001 -00.1
+  if (regPos.test(val) || regNeg.test(val)) {
+    if (regZero.test(val)) {
+      return false
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function Fixed(num, fixedNum = 2) {
+  if (!num) return 0
+  if (num && num.toString().indexOf('.') === -1) {
+    return num
+  }
+  let decimal = num.toString().split('.')[1]
+  if (decimal.length < fixedNum) {
     return num
   } else {
-    return (Math.round(num * Math.pow(10, pre)) / Math.pow(10, pre)).toFixed(pre)
+    return (Math.round(num * Math.pow(10, fixedNum)) / Math.pow(10, fixedNum)).toFixed(fixedNum)
+  }
+}
+
+
+export function toNumber(num) {
+  let finalNum = num ? parseFloat(num) : 0
+  return finalNum ? finalNum : 0
+}
+/**
+ * 深拷贝对象
+ * */
+export function deepClone(obj) {
+  let newObj = obj instanceof Array ? [] : obj instanceof Object ? {} : null;
+  if (!newObj) {
+    return obj;
+  }
+  for (let item in obj) {
+    if (obj[item] instanceof Array || obj[item] instanceof Object) {
+      newObj[item] = deepClone(obj[item]);
+    } else {
+      newObj[item] = obj[item];
+    }
+  }
+  return newObj;
+}
+
+
+/**
+ * @description: 检查是否为空
+ * @param {array} str
+ * @return {*}
+ */
+export function isEmpty(...str) {
+  return str.some(i => i === undefined || i === null || i === '')
+}
+
+/**
+ * @description: 页面跳转到指定地址
+ * @param {string} path  跳转路径
+ * @param {string} blank 本页跳转还是新标签页跳转
+ * @return {*}
+ */
+export function redirect(path, blank) {
+  let protocol = window.location.protocol
+  let host = window.location.host
+  let url = `${protocol}//${host}${path}`
+  if(path.startsWith(protocol)) url = path
+  if(blank) {
+    window.open(url);
+  }else {
+    window.location.href = url
   }
 }

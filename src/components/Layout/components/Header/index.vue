@@ -1,117 +1,164 @@
-<style scoped>
+<style scoped lang="less">
   .header-wraper {
     width: 100%;
     height: 50px;
-    background-color: #3080fe;
+    background-color: @colorMain;
     position: relative;
-    z-index: 999;
-    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.4);
-    border-left-color: rgb(230, 230, 230);
+    z-index: 2021;
+    border-left-color: @colorBorder;
     border-left-style: solid;
     border-left-width: 1px;
     box-sizing: border-box;
-  }
-  .menu-switch {
-    float: left;
-    position: relative;
-  }
-  .menu-switch>span {
-    line-height: 50px;
-    padding: 12px 20px;
-    box-sizing: border-box;
-    cursor: pointer;
-  }
-  .menu-switch>span>i {
-    font-size: 16px;
-    color: #FFF;
-  }
-  .per-mesg {
-    padding: 0 20px;
-    line-height: 50px;
-    cursor: pointer;
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 998;
-    margin-top: -2px;
-  }
-  .username>span {
-    color: #FFF;
-  }
-  .username>span:nth-child(1) {
-    font-size: 18px;
-    position: relative;
-    top: 2px;
-  }
-  .username>span:nth-child(2) {
-    font-size: 16px;
-    vertical-align: middle;
-    width: 82px;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -o-text-overflow: ellipsis;
-    white-space:nowrap;
-  }
-  .username>span:nth-child(3) {
-    font-size: 14px;
-    position: relative;
-    top: 1px;
-  }
-
-  .handel-wrap {
-    width: 100%;
-    height: auto;
-    background-color: #3080fe;
-    border-radius: 5px;
-    position: relative;
-    top: 6px;
-    padding: 0 8px;
-  }
-  .handel-wrap>p {
-    line-height: 38px;
-    border-bottom: 1px solid #f5f5f5;
-    font-size: 14px;
-    color: #FFF;
-  }
-  .handel-wrap>p {
-    text-align: center;
-  }
-  .handel-wrap>p:nth-child(3) {
-    border-bottom: 0;
-  }
-  .handel-wrap>p:hover {
-    color: rgb(230, 230, 230);
-  }
-  .slow-icon {
-    position: absolute;
-    top: -30px;
-    left: 6px;
-    color: #3080fe;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .menu-switch {
+      height: 50px;
+      width: 60px;
+      span {
+        line-height: 50px;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        cursor: pointer;
+        i {
+          font-size: 16px;
+          color: @colorWhite;
+        }
+      }
+    }
+    .option-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      span.span-common-style {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        box-sizing: border-box;
+        color: @colorWhite;
+        height: 50px;
+        cursor: pointer;
+        i {
+          font-size: 20px;
+          color: @colorWhite;
+        }
+      }
+      span.phone {
+        i {
+          font-size: 18px;
+        }
+      }
+    }
+    .per-mesg {
+      margin-right: 20px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 998;
+      .username {
+        display: flex;
+        align-items: center;
+        span {
+          color: @colorWhite;
+        }
+        span.user-icon {
+          font-size: 18px;
+          margin-right: 4px;
+        }
+        span.username-info {
+          font-size: 16px;
+          vertical-align: middle;
+          width: 82px;
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          -o-text-overflow: ellipsis;
+          white-space:nowrap;
+        }
+        span.arrow-down-icon {
+          font-size: 14px;
+        }
+      }
+      .handel-wrap {
+        width: 100%;
+        height: auto;
+        background-color: @colorMain;
+        border-radius: 5px;
+        position: absolute;
+        right: 0;
+        top: 50px;
+        padding: 0 8px;
+        .slow-icon {
+          position: absolute;
+          top: -12px;
+          left: 8px;
+          color: @colorMain;
+        }
+        p {
+          line-height: 40px;
+          border-bottom: 1px solid @colorMainGrey;
+          font-size: 14px;
+          color: @colorWhite;
+          text-align: center;
+        }
+        p:last-child {
+          border-bottom: 0;
+        }
+        p:hover {
+          color: @colorMainGrey;
+        }
+      }
+    }
   }
 </style>
 
 <template>
   <div class="header-wraper">
-    <div>
-      <div class="menu-switch">
-        <span @click="closeMenu" v-if="isShowMenu"><i class="icon iconfont icon-shouqizuo"></i></span>
-        <span @click="showMenu" v-else><i class="icon iconfont icon-zhankai"></i></span>
-      </div>
-      <div class="per-mesg" @mouseenter="showSlowDown" @mouseleave="hideSlowDown">
-        <div class="username">
-          <span><i class="el-icon-user-solid" aria-hidden="true"></i></span>
-          <span>{{userName}}</span>
-          <span><i class="el-icon-arrow-down" aria-hidden="true"></i></span>
-        </div>
-        <transition name="el-zoom-in-top">
-          <div class="handel-wrap" v-show="isShowSlowDown">
-            <a class="slow-icon">▲</a>
-            <p @click="changePass">修改密码</p>
-            <p @click="out">退出登录</p>
+    <div class="menu-switch" v-if="showSwitch">
+      <span @click="closeMenu" v-if="isShowMenu"><i class="icon iconfont icon-shouqizuo"></i></span>
+      <span @click="showMenu" v-else><i class="icon iconfont icon-zhankai"></i></span>
+    </div>
+    <div class="option-wrap">
+      <el-dropdown v-if="showScan">
+        <span class="span-common-style phone">
+          <i class="el-icon-mobile-phone"></i>手机扫码登录
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <div style="width: 240px; text-align: center;">
+            <img width="150px" height="150px" src="http://retailimg01.benlailife.com/21a123c21ce74a65b7487c2943af8b95.jpg" alt="扫码登录小程序">
+            <p style="font-size: 18px;">扫码登录小程序</p>
+            <p style="color: #9BA3AF;">登录微信小程序快捷处理订单</p>
           </div>
-        </transition>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <span class="span-common-style" @click="refreshPageHandel" v-if="showRefresh">
+        <i class="el-icon-refresh"></i>
+      </span>
+      <span class="span-common-style" @click="bigScreenHandel">
+        <i class="el-icon-full-screen"></i>
+      </span>
+    </div>
+    <div 
+      class="per-mesg" 
+      @mouseenter="showSlowDown" 
+      @mouseleave="hideSlowDown">
+      <div class="username">
+        <span class="user-icon"><i class="el-icon-user-solid" aria-hidden="true"></i></span>
+        <span class="username-info">{{loginInfo.userNickname ? loginInfo.userNickname : loginInfo.userName ? loginInfo.userName : userNickname ? userNickname : '--'}}</span>
+        <span class="arrow-down-icon"><i class="el-icon-arrow-down" aria-hidden="true"></i></span>
       </div>
+      <transition name="el-fade-in">
+        <div 
+          @mouseenter="showSlowDown"
+          class="handel-wrap" 
+          v-show="isShowSlowDown">
+          <a class="slow-icon">▲</a>
+          <p @click="changePass">修改密码</p>
+          <p @click="out">退出登录</p>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -119,12 +166,34 @@
 <script>
 import {loginOut} from '@/utils/utils'
 import Storage from '@/utils/localStorage'
+import {refreshPage} from '@/utils/route'
+import screenfull from 'screenfull'
+import config from '@/utils/config'
+let myTimmer = null
 export default{
+  props: {
+    showSwitch: {
+      type: Boolean,
+      default: true
+    },
+    showRefresh: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
-      userName: Storage.get("loginInfo") && Storage.get("loginInfo").userNickname ? Storage.get("loginInfo").userNickname : (Storage.get("loginInfo") && Storage.get("loginInfo").userName ? Storage.get("loginInfo").userName : '--'), // 用户名
+      userNickname: Storage.get("loginInfo") ? Storage.get("loginInfo").userNickname : '',
       isShowMenu: true, // 菜单是否展示
-      isShowSlowDown: false, // 下拉框是否展示
+      isShowSlowDown: false // 下拉框是否展示
+    }
+  },
+  computed: {
+    showScan() {
+      return config.clientId === 6
+    },
+    loginInfo() {
+      return this.$store.state.login.loginInfo
     }
   },
   methods: {
@@ -132,13 +201,17 @@ export default{
      * 展示下拉框
      */
     showSlowDown () {
+      clearTimeout(myTimmer)
       this.isShowSlowDown = true
     },
     /**
      * 隐藏下拉框
      */
     hideSlowDown () {
-      this.isShowSlowDown = false
+      clearTimeout(myTimmer)
+      myTimmer = setTimeout(() => {
+        this.isShowSlowDown = false
+      }, 500)
     },
     /**
      * 展示菜单
@@ -166,6 +239,13 @@ export default{
      */
     changePass () {
       this.$emit('changePass')
+    },
+    bigScreenHandel() {
+      screenfull.toggle()
+    },
+    refreshPageHandel() {
+      this.$store.commit('tagsView/DEL_CACHE_ONLY', this.$route)
+      this.$nextTick(() => refreshPage(this.$route))
     }
   }
 }

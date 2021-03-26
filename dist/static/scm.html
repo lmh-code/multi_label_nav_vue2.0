@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="./favicon.ico"/>
+  <script src="./js/resize.js"></script>
+  <script src="./js/jump.js"></script>
+  <title>供应商入驻</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      background-color: #F8F9FB;
+    }
+    .box-01 {
+      position: relative;
+    }
+    .box-01 .img-01-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 3.34rem;
+      height: 2.5rem;
+      margin-top: -1.25rem;
+      margin-left: -1.67rem;
+    }
+    .box-02, .box-03, .box-04 {
+      width: 100%;
+      text-align: center;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      box-sizing: border-box;
+    }
+    .box-02 {
+      padding-top: 0.16rem;
+      padding-bottom: 0.56rem;
+    }
+    .box-03 {
+      padding-top: 0.58rem;
+      padding-bottom: 0.56rem;
+      background-color: #ffffff;
+    }
+    .box-04 {
+      padding-top: 0.42rem;
+      padding-bottom: 0.42rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="box-01">
+    <img src="./images/01.png" alt="点击入驻本来鲜供应商" class="img-01-icon" onclick="goAddress('/scm_reg')">
+    <img src="./images/bg.png" alt="点击入驻本来鲜供应商" width="100%">
+  </div>
+  <div class="box box-02">
+    <img src="./images/02.png" alt="点击入驻本来鲜供应商" width="100%" onclick="goAddress('/scm_reg')">
+  </div>
+  <div class="box box-03">
+    <img src="./images/03.png" alt="点击入驻本来鲜供应商" width="100%">
+  </div>
+  <div class="box box-04">
+    <img src="./images/04.png" alt="点击入驻本来鲜供应商" width="100%" onclick="goAddress('/scm_reg')">
+  </div>
+  <script>
+    function isMobile () {
+      return !!navigator.userAgent.match(/(iPhone|iPod|Android|iOS|iPad|Mobile)/i)
+    }
+    if(isMobile()) {
+      let mainBoxArr = document.getElementsByClassName("box")
+      for(let i = 0; i < mainBoxArr.length; i++) {
+        mainBoxArr[i].style.paddingLeft = '0.1rem'
+        mainBoxArr[i].style.paddingRight = '0.1rem'
+      }
+    }
+  </script>
+</body>
+</html>

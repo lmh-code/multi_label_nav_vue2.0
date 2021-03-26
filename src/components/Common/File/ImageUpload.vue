@@ -1,4 +1,4 @@
-<style>
+<style lang="less">
   .bl-draggable-wrap {
     overflow: hidden;
   }
@@ -24,14 +24,14 @@
   .bl-upload-wrap .el-upload {
     width: 100%;
     height: 100%;
-    border: 1px dashed #d9d9d9;
+    border: 1px dashed @colorSplit;
     border-radius: 6px;
     cursor: pointer;
     position: relative;
     overflow: hidden;
   }
   .bl-upload-wrap .el-upload:hover {
-    border-color: #409EFF;
+    border-color: @colorMain;
   }
   .bl-upload-wrap img {
     width: 100%;
@@ -45,72 +45,80 @@
     align-items: center;
     justify-content: center;
     font-size: 28px;
-    color: #8c939d;
+    color: @colorSubTitle;
   }
   .btn-w {
     padding: 0 5px;
     line-height: 0;
-    margin-top: 8px;
-    margin-bottom: 8px;
     text-align: center;
   }
   .btn-w .up-h-i {
     cursor: pointer;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
   }
   .btn-w .up-h-i:hover {
-    color: #3080fe;
+    color: @colorMain;
   }
 </style>
 
 <template>
-  <!-- 用例如下：
-    <image-upload 
-      ref="imageUpload" 
-      @setImageList="setImageList"
-      :maxImgsNum="6"
-      :imgSize="2048"
-      :checkWidth="true"
-      :width="800"
-      :checkHeight="true"
-      :height="800"/> -->
-  <draggable v-model="imageList" @update="datadragEnd" @start="datadragStart" class="bl-draggable-wrap">
-    <transition-group>
-      <div class="bl-upload-wrap" 
-        v-for="(item, idx) of imageList" 
-        @click="setItemIdx(idx)" 
-        :key="item.imgUrl">
-        <el-upload
-          :class="imgAspect === 2 ? 'uploader34' : imgAspect === 3 ? 'uploader43' : 'uploader11'"
-          action=""
-          :show-file-list="false"
-          :before-upload="imageUploadReg"
-          :http-request="emitUpload">
-          <div v-loading="imageUploadLoading && currentUpFileIdx == idx" class="upload-img-wrap">
-            <img v-if="item.imgUrl" :src="item.imgUrl">
-            <i v-else class="el-icon-plus"></i>
+  <div>
+    <!-- 用例如下：
+      <image-upload 
+        ref="imageUpload" 
+        @setImageList="setImageList"
+        :maxImgsNum="6"
+        :imgSize="2048"
+        :width="800"
+        :height="800"/> -->
+    <draggable v-model="imageList" @update="datadragEnd" @start="datadragStart" class="bl-draggable-wrap">
+      <transition-group>
+        <div class="bl-upload-wrap" 
+          v-for="(item, idx) of imageList" 
+          @click="setItemIdx(idx)" 
+          :key="item.imageUrl">
+          <el-upload
+            :class="imgAspect === 2 ? 'uploader34' : imgAspect === 3 ? 'uploader43' : 'uploader11'"
+            action=""
+            :show-file-list="false"
+            :before-upload="imageUploadReg"
+            :http-request="emitUpload">
+            <div v-loading="imageUploadLoading && currentUpFileIdx == idx" class="upload-img-wrap">
+              <img v-if="item.imageUrl" :src="item.imageUrl">
+              <i v-else class="el-icon-plus"></i>
+            </div>
+          </el-upload>
+          <div class="btn-w" v-if="item.imageUrl && item.imageUrl != ''"> 
+            <span class="up-h-i" 
+              @click="onPreviewHandel(item.imageUrl)">
+              <i class="el-icon-zoom-in"></i>
+            </span>
+            <span class="up-h-i" 
+              @click="deleteUpFile(idx)">
+              <i class="el-icon-delete"></i>
+            </span>
+            <span class="up-h-i">
+              <i class="el-icon-rank"></i>
+            </span>
           </div>
-        </el-upload>
-        <div class="btn-w" v-if="item.imgUrl && item.imgUrl != ''"> 
-          <span class="up-h-i" 
-            @click="deleteUpFile(idx)">
-            <i class="el-icon-delete"></i>
-          </span>
-          <span class="up-h-i">
-            <i class="el-icon-rank"></i>
-          </span>
         </div>
-      </div>
-    </transition-group>
-  </draggable>
+      </transition-group>
+    </draggable>
+    <el-dialog 
+      :visible.sync="dialogVisible" 
+      append-to-body>
+      <img width="100%" :src="bigImageUrl" alt=""/>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
   import Draggable from 'vuedraggable'
   import * as qiniu from 'qiniu-js'
+  import config from '@/utils/config'
   const fileUrlList = {
-    getQiNiuToken: '/foundation/qiniu/auth/file'
+    getQiNiuToken: `${config.reqUrl}/foundation/qiniu/auth/file`
   }
   export default {
     props: {
@@ -119,70 +127,68 @@
         type: Number,
         default: 1
       },
-      // 是否检查图片尺寸大小，和imgSize参数必须同时存在
-      checkImgSize: {
-        type: Boolean,
-        default: false
-      },
-      // imgSize 图片尺寸限制大小,默认1024Kb（1M）
+      // imgSize 图片尺寸限制大小, 单位kb
       imgSize: {
         type: Number,
-        default: 1024
+        default: 0
       },
       // 最多上传几张：不传默认不限张数
       maxImgsNum: {
         type: Number,
-        default: 1000000000
+        default: 0
       },
-      // 是否检查图片宽度，和width参数必须同时存在
-      checkWidth: {
-        type: Boolean,
-        default: false
-      },
+      // 是否检查图片宽度，默认不限
       width: {
         type: Number,
         default: 0
       },
-      // 是否检查图片高度，和height参数必须同时存在
-      checkHeight: {
-        type: Boolean,
-        default: false
-      },
+      // 是否检查图片高度，默认不限
       height: {
         type: Number,
         default: 0
+      },
+      defaultImages: { // 默认已有的图片
+        type: Array,
+        default: () => []
       }
     },
     data() {
       return {
         imageUploadLoading: false,
         currentUpFileIdx: -1,
-        imageList: []
+        imageList: [
+          {
+            imageUrl: '',
+            index: 0
+          }
+        ],
+        dialogVisible: false,
+        bigImageUrl: ''
       }
     },
     components: {
       'draggable': Draggable
     },
-    methods: {
-      /**
-       * @description: 给子组件传参
-       * @param {object} params {
-       * imageList {array} 必传 图片列表集合
-       * }
-       */
-      initHandel(params) {
-        let images = params.imageList || []
-        let imageList = images.filter(item => {
-          return item.imgUrl
-        })
-        if(imageList.length < this.maxImgsNum) {
-          imageList.push({
-            imgUrl: '',
-            index: imageList.length
+    watch: {
+      defaultImages: {
+        immediate: true,
+        handler: function(newVal, oldVal) {
+          let images = [...newVal]
+          let imageListTemp = images.filter((item, index) => {
+            item.index = index
+            return item.imageUrl
           })
+          if(imageListTemp.length < this.maxImgsNum || this.maxImgsNum === 0) {
+            imageListTemp.push({
+              imageUrl: '',
+              index: imageListTemp.length
+            })
+          }
+          this.imageList = imageListTemp
         }
-        this.imageList = imageList
-      },
+      }
+    },
+    methods: {
       datadragStart() {
         if(this.imageUploadLoading || this.maxImgsNum === 1) return
       },
@@ -190,17 +196,23 @@
         const imageListTemp = [...this.imageList]
         let newImageList = imageListTemp.filter((item, index) => {
           item.index = index
-          return item.imgUrl && item.imgUrl != ''
+          return item.imageUrl && item.imageUrl != ''
         });
         // 给父组件发送指令
-        this.$emit("setImageList", {
+        this.$emit("images-change", {
           imageList: newImageList
         })
-        if(this.maxImgsNum > 1 && newImageList.length < this.maxImgsNum) {
-          const imageListItem = {
-            imgUrl: '',
-            index: imageListTemp.length
+        let imageListItem = {}
+        if(this.maxImgsNum) {
+          // 验证上传图片文件数
+          if(newImageList.length < this.maxImgsNum) {
+            imageListItem.imageUrl = ''
+            imageListItem.index = imageListTemp.length
+            newImageList.push(imageListItem)
           }
+        }else {
+          imageListItem.imageUrl = ''
+          imageListItem.index = imageListTemp.length
           newImageList.push(imageListItem)
         }
         this.imageList = newImageList
@@ -210,29 +222,28 @@
         this.currentUpFileIdx = idx
       },
       imageUploadReg (file) {
-        const isPic = file.type.indexOf('image/') !== -1
-        const isJPG = file.type === 'image/jpeg' || 'image/png'
+        const isPic = file.type === 'image/jpeg' || 'image/png'
         if (!isPic) {
-          this.$message.warning('图片文件必须是图片格式!')
-        }
-        if (!isJPG) {
-          this.$message.warning('图片只能是JPG或PNG格式!')
+          this.$tip.message('图片只能是JPG或PNG格式!', 'warning')
+          return false
         }
         let isSizeNum = true
-        if(this.checkImgSize) {
-          isSizeNum = file.size <= this.imgSize * 1024
+        if(this.imgSize) {
+          // imgSize：参数有值，对图片大小验证
           let sizeValiTipStr = ''
           if(this.imgSize < 1024) {
             sizeValiTipStr = `${this.imgSize}KB`
           }else {
             sizeValiTipStr = `${this.imgSize / 1024}M`
           }
-          if (!isSizeNum) {
-            this.$message.warning(`图片大小不能超过${sizeValiTipStr}`)
+          if(file.size > this.imgSize * 1024) {
+            isSizeNum = false
+            this.$tip.message(`图片大小不能超过${sizeValiTipStr}！`, 'warning')
+            return false
           }
         }
         let imgWidthHeightCheck = null
-        if(this.checkWidth && this.width && this.checkHeight && this.height) {
+        if(this.width && this.height) {
           // 宽和高都检查
           const that = this
           imgWidthHeightCheck = new Promise(function(resolve, reject) {
@@ -246,10 +257,10 @@
           }).then(() => {
             return file
           }, () => {
-            this.$message.warning(`请上传宽度为: ${that.width}，高度为: ${that.height}像素，大小不超过${sizeValiTipStr}的JPG或PNG图片！`)
+            this.$tip.message(`请上传宽度为: ${that.width}，高度为: ${that.height}像素，大小不超过${sizeValiTipStr}的JPG或PNG图片！`, 'warning')
             return Promise.reject()
           })
-        }else if(this.checkWidth && this.width) {
+        }else if(this.width) {
           // 只检查宽度
           const that = this
           imgWidthHeightCheck = new Promise(function(resolve, reject) {
@@ -263,10 +274,10 @@
           }).then(() => {
             return file
           }, () => {
-            this.$message.warning(`请上传宽度为: ${that.width}像素，大小不超过${sizeValiTipStr}的JPG或PNG图片！`)
+            this.$tip.message(`请上传宽度为: ${that.width}像素，大小不超过${sizeValiTipStr}的JPG或PNG图片！`, 'warning')
             return Promise.reject()
           })
-        }else if(this.checkHeight && this.height) {
+        }else if(this.height) {
           // 只检查高度
           const that = this
           imgWidthHeightCheck = new Promise(function(resolve, reject) {
@@ -280,20 +291,20 @@
           }).then(() => {
             return file
           }, () => {
-            this.$message.warning(`请上传高度为: ${that.height}像素，大小不超过${sizeValiTipStr}的JPG或PNG图片！`)
+            this.$tip.message(`请上传高度为: ${that.height}像素，大小不超过${sizeValiTipStr}的JPG或PNG图片！`, 'warning')
             return Promise.reject()
           })
         }
-        if((this.checkWidth && this.width && this.checkHeight && this.height) || (this.checkWidth && this.width) || (this.checkHeight && this.height)) {
-          return isPic && isJPG && isSizeNum && imgWidthHeightCheck
+        if((this.width && this.height) || this.width || this.height) {
+          return isPic && isSizeNum && imgWidthHeightCheck
         }else {
-          return isPic && isJPG && isSizeNum
+          return isPic && isSizeNum
         }
       },
       emitUpload (e) {
-        if(this.maxImgsNum !== 1) {
+        if(this.maxImgsNum) {
           if(this.imageList.length > this.maxImgsNum) {
-            this.$message.warning(`最多只能上传${this.maxImgsNum}张图片！`)
+            this.$tip.message(`最多只能上传${this.maxImgsNum}张图片！`, 'warning')
             return false
           }
         }
@@ -308,18 +319,26 @@
             complete: (res) => {
               this.imageUploadLoading = false
               const urlImage = `http://retailimg01.benlailife.com/${res.key}`
-              this.imageList[this.currentUpFileIdx].imgUrl = urlImage
+              this.imageList[this.currentUpFileIdx].imageUrl = urlImage
               let newImageList = this.imageList.filter(item => {
-                return item.imgUrl && item.imgUrl != ''
+                return item.imageUrl && item.imageUrl != ''
               })
               // 给父组件发送指令
-              this.$emit("setImageList", {
+              this.$emit("images-change", {
                 imageList: newImageList
               })
-              if(this.maxImgsNum > 1 && newImageList.length < this.maxImgsNum) {
+              if(this.maxImgsNum) {
+                // 验证上传图片文件数
+                if(newImageList.length < this.maxImgsNum) {
+                  newImageList.push({
+                    index: this.currentUpFileIdx + 1,
+                    imageUrl: ''
+                  })
+                }
+              }else {
                 newImageList.push({
                   index: this.currentUpFileIdx + 1,
-                  imgUrl: ''
+                  imageUrl: ''
                 })
               }
               this.imageList = newImageList
@@ -354,20 +373,24 @@
         if(this.imageUploadLoading) return
         this.imageList.splice(idx, 1)
         let newImageList = this.imageList.filter(item => {
-          return item.imgUrl && item.imgUrl != ''
+          return item.imageUrl && item.imageUrl != ''
         })
         // 给父组件发送指令
-        this.$emit("setImageList", {
+        this.$emit("images-change", {
           imageList: newImageList
         })
         newImageList.push({
           index: newImageList.length,
-          imgUrl: ''
+          imageUrl: ''
         })
         newImageList.forEach((item, index) => {
           item.index = index
         })
         this.imageList = newImageList
+      },
+      onPreviewHandel(filePath) {
+        this.bigImageUrl = filePath
+        this.dialogVisible = true
       }
     }
   }

@@ -6,7 +6,12 @@ import * as utils from '@/utils/utils'
 import Layout from '@/components/Layout'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
-
+import Phone from '@/components/Login/Phone'
+import ForgetPass from '@/components/Login/ForgetPass'
+import DDLogin from '@/components/Login/DDLogin'
+import SCMRegister from '@/components/Login/SCMRegister'
+import PerfectSCMInfo from '@/components/Login/PerfectSCMInfo'
+import Redirect from '@/components/Redirect'
 // 错误提示页面
 import errorRouterList from './errorRouter'
 // 通用报表相关路由
@@ -15,6 +20,10 @@ import commonReportRoutersList from './commonReportRouters'
 import routersList from '@/module/routers'
 
 Vue.use(Router)
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 const scrollBehavior = (to, from, savedPosition) => {
   if (savedPosition) {
@@ -42,12 +51,12 @@ const scrollBehavior = (to, from, savedPosition) => {
  */
 const router = new Router({
   mode: 'history',
-  base: config.baseRouter,
+  base: `${config.baseRouter}/`,
   scrollBehavior,
   routes: [
     {
       path: '/login',
-      name: '账号密码登录',
+      name: 'login',
       meta: {
         title: '账号密码登录',
         cantCheck: true
@@ -55,13 +64,67 @@ const router = new Router({
       component: Login
     },
     {
+      path: '/phone',
+      name: 'phone',
+      meta: {
+        title: '手机验证登录',
+        cantCheck: true
+      },
+      component: Phone
+    },
+    {
+      path: '/forget',
+      name: 'forget',
+      meta: {
+        title: '忘记密码',
+        cantCheck: true
+      },
+      component: ForgetPass
+    },
+    {
+      path: '/ddLogin',
+      name: 'ddLogin',
+      meta: {
+        title: '钉钉扫码登录',
+        cantCheck: true
+      },
+      component: DDLogin
+    },
+    {
+      path: '/logining',
+      name: 'logining',
+      meta: {
+        title: '钉钉扫码登录',
+        cantCheck: true
+      },
+      component: DDLogin
+    },
+    {
+      path: '/scm_reg',
+      name: 'SCMRegister',
+      meta: {
+        title: '供应商入驻',
+        cantCheck: true
+      },
+      component: SCMRegister
+    },
+    {
+      path: '/perfect',
+      name: 'PerfectSCMInfo',
+      meta: {
+        title: '供应商入驻-补充信息',
+        cantCheck: true
+      },
+      component: PerfectSCMInfo
+    },
+    ...config.clientId === 4 ? routersList.alarmList : [],
+    {
       path: '/',
       redirect: '/index',
       component: Layout,
       children: [
         {
           path: '/index',
-          name: '首页',
           meta: {
             title: '首页',
             cantCheck: true,
@@ -71,12 +134,38 @@ const router = new Router({
           },
           component: Home
         },
+        {
+          path: '/example',
+          name: 'example',
+          meta: {
+            title: '组件文档示例',
+            cantCheck: true,
+            breadcrumbList: [
+              {name: '首页', path: ''},
+              {name: '组件文档示例', path: ''}
+            ]
+          },
+          component: () => import('@/components/Example')
+        },
         // 通用报表相关路由
         ...commonReportRoutersList.commonReportRoutersList,
         // 业务层路由
-        ...routersList,
+        ...config.clientId === 4 ? routersList.routersList : routersList,
         // 错误设置页面   为了美观尽量放置最下边
         ...errorRouterList.errorRouter
+      ]
+    },
+    {
+      path: '/redirect',
+      component: Layout,
+      children: [
+        {
+          path: '*',
+          component: Redirect,
+          meta: {
+            cantCheck: true
+          }
+        }
       ]
     },
     {
@@ -86,18 +175,39 @@ const router = new Router({
   ]
 })
 
+function isEmpty(...str) {
+  return str.some(i => i === undefined || i === null || i === '')
+}
 /**
  * @description: 在进入路由前验证各种状态
  * @param {type} 
  * @return: 
  */
 router.beforeEach((to, from, next) => {
-  console.log("to:", to);
+  if (!to.fullPath.startsWith('/redirect')) {
+    if (typeof to.meta.dynamicTitle === 'function') {
+      to.meta.title = to.meta.dynamicTitle(to, from)
+    }
+  }
   if(to.meta.cantCheck) {
-    next()
+    const toCommonModule = to.meta.commonModule 
+    const fromCommonModule = from.meta.commonModule
+    const isComponentReuse = !isEmpty(toCommonModule) && toCommonModule === fromCommonModule
+    if (isComponentReuse) {
+      next(`/redirect${to.fullPath}`)
+    }else {
+      next()
+    }
   }else {
     if(checkRouter(to.path, to.params)) {
-      next()
+      const toCommonModule = to.meta.commonModule 
+      const fromCommonModule = from.meta.commonModule
+      const isComponentReuse = !isEmpty(toCommonModule) && toCommonModule === fromCommonModule
+      if (isComponentReuse) {
+        next(`/redirect${to.fullPath}`)
+      }else {
+        next()
+      }
     }else {
       next('/noopt')
     }
@@ -105,9 +215,8 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
-  if (to.meta.title) {
-    document.title = to.meta.title
-  }
+  document.title = to.meta.title ? to.meta.title : '本来鲜'
+  to.meta.lastFullPath = to.fullPath
 })
 /**
  * @description: 检查用户要跳转的路由是否有权限
@@ -115,10 +224,15 @@ router.afterEach((to, from) => {
  * @return: 
  */
 const checkRouter = (toPath) => {
-  let allMenusList = Storage.get("allMenus") && Storage.get("allMenus").length > 0 ? Storage.get("allMenus") : []
+  let allMenusList = Storage.get("_menus") && Storage.get("_menus")[config.clientId] && Storage.get("_menus")[config.clientId].length > 0 ? Storage.get("_menus")[config.clientId] : []
   let cPath = `/${toPath.split('/')[1]}`
   return utils.isKeyInArray(cPath, allMenusList) || utils.isKeyInArray(toPath, allMenusList) || utils.isKeyInArray(cPath.substr(1), allMenusList) || utils.isKeyInArray(toPath.substr(1), allMenusList)
-
 }
+
+window.addEventListener('unhandledrejection', event => {
+  if (event.reason.stack.startsWith('Error: Redirected when going from')) {
+    event.preventDefault()
+  }
+})
 
 export default router

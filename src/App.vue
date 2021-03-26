@@ -20,13 +20,14 @@ export default {
 }
 </script>
 
-<style>
-  @import "./assets/style/common.css";
+<style lang="less">
+  @import "~@/assets/style/base.less";
+  @import "~@/assets/style/common.less";
   #app {
     font-family: 'microsoft yahei', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: #666;
-    background-color: #f5f5f5;
+    color: @colorTitle;
+    background-color: @colorMainGrey;
   }
 </style>

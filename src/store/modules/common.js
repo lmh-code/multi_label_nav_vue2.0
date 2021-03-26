@@ -17,8 +17,8 @@ const actions = {
   setUserOptions({commit, state}, param) {
     commit('setUserOptions', param)
   },
-  setCurrentDate(state, param) {
-    commit('setCurrentDate', param)
+  setCurrentDate({commit}) {
+    commit('setCurrentDate', new Date().getTime())
   }
 }
 
